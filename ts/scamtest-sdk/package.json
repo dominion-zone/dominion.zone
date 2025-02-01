@@ -1,0 +1,25 @@
+{
+  "name": "@dominion.zone/scamtest-sdk",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "gts lint",
+    "clean": "gts clean",
+    "compile": "tsc",
+    "fix": "gts fix"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^22.7.5",
+    "typescript": "^5.6.3",
+    "@mysten/sui": "^1.21.1"
+  },
+  "peerDependencies": {
+    "@mysten/sui": "^1.21.1"
+  }
+}

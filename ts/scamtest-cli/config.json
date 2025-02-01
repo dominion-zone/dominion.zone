@@ -1,0 +1,10 @@
+{
+  "devnet": {
+    "scamtest": {
+      "package": "0x3e1a27c774500c6ba230e280296d6ee62dbe2ea7ccc4fd58555044ac0bc267ff",
+      "upgradeCap": "0x84c61ca27fe3ec0fc50685e773cd7bba00e3285ce316ff462dbb91a57d0c9ff4",
+      "adminCap": "0x6766d84a9361d04712a55084005caef4f524540f78ba4be488ddb502d99143cd",
+      "scamtest": "0x0d45b5a5025f2f4f317ff54990f4407f82859d56a41b774272677f65db68c4cf"
+    }
+  }
+}

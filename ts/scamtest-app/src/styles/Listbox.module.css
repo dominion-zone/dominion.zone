@@ -1,0 +1,115 @@
+.root {
+  display: inline-block;
+  width: 8rem;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.container {
+  position: relative;
+  margin-top: 0.25rem;
+}
+
+.button {
+  position: relative;
+  width: 100%;
+  padding: 0.5rem 2.5rem 0.5rem 0.75rem;
+  text-align: left;
+  background: #222;
+  color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  outline: none;
+}
+
+.button-text {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.button-icon {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  padding-right: 0.5rem;
+  pointer-events: none;
+}
+
+.options {
+  position: absolute;
+  width: 100%;
+  margin-top: 0.25rem;
+  padding: 0.25rem 0;
+  background: #222;
+  border-radius: 0.25rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  max-height: 15rem;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.option {
+  cursor: pointer;
+  display: block;
+  padding: 0.5rem 0.9rem 0.5rem 0.75rem;
+  white-space: nowrap;
+}
+
+.option-content {
+  display: flex;
+  align-items: center;
+}
+
+.option--active {
+  background-color: #ffedd5;
+  color: #7c2d12;
+}
+
+.option--selected {
+  font-weight: 600;
+}
+
+.check-icon {
+  align-items: center;
+  margin-left: auto;
+  right: 0;
+  color: #d97706;
+}
+
+.icon {
+  width: 12px;
+  height: 12px;
+}
+
+.transition--enter {
+  transition: opacity 0.1s ease-in;
+}
+
+.transition--enter-from {
+  opacity: 0;
+}
+
+.transition--enter-to {
+  opacity: 1;
+}
+
+.transition--leave {
+  transition: opacity 0.1s ease-out;
+}
+
+.transition--leave-from {
+  opacity: 1;
+}
+
+.transition--leave-to {
+  opacity: 0;
+}

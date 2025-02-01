@@ -1,0 +1,32 @@
+{
+  "name": "@dominon.zone/scamtest-app",
+  "version": "0.0.0",
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "start": "vite",
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "vite": "^6.0.0",
+    "vite-plugin-pages": "^0.32.4",
+    "vite-plugin-solid": "^2.11.0"
+  },
+  "dependencies": {
+    "@dominion.zone/scamtest-sdk": "workspace:*",
+    "@dominion.zone/solid-sui": "workspace:*",
+    "@mysten/sui": "^1.21.1",
+    "@mysten/wallet-standard": "^0.13.22",
+    "@solid-primitives/storage": "^4.3.1",
+    "@solidjs/router": "^0.15.1",
+    "axios": "^1.7.9",
+    "lucide-solid": "^0.471.0",
+    "solid-js": "^1.9.3",
+    "terracotta": "^1.0.6",
+    "vite-plugin-typed-css-modules": "^0.3.0"
+  }
+}
