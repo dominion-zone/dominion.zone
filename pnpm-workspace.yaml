@@ -4,3 +4,4 @@ packages:
   - 'ts/scamtest-cli'
   - 'ts/scamtest-app'
   - 'ts/solid-sui'
+  - 'ts/dominion-protector-chrome'

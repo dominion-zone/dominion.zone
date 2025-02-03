@@ -62,7 +62,6 @@ export const installServeCLI = (program: Command) => {
         }
 
         console.log(`Serving slot ${slot.value}`);
-        res.set('Access-Control-Allow-Origin', 'https://scamtest.xyz');
         res.set('Content-Type', 'text/json');
         res.send(slot.secret);
       });
