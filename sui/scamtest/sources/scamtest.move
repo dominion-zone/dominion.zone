@@ -513,3 +513,280 @@ public fun check_secret<C>(
 }
 
 // === Test Functions ===
+
+/*
+{
+    "supply_value": {
+        "name": "supply_value",
+        "params": [
+            {
+                "name": "scamtest",
+                "type": "&Scamtest<T0>",
+                "description": "Reference to the Scamtest instance to query."
+            }
+        ],
+        "side_effects": [],
+        "description": "Returns the total supply value of the token managed by the Scamtest contract.",
+        "score": "safe",
+        "warnings": [],
+        "returns": [
+            {
+                "name": "supply",
+                "type": "u64",
+                "description": "Total supply of the token."
+            }
+        ]
+    },
+    "new": {
+        "name": "new",
+        "params": [
+            {
+                "name": "supply",
+                "type": "0x2::balance::Supply<T0>",
+                "description": "Initial token supply to manage."
+            },
+            {
+                "name": "tx_context",
+                "type": "&mut 0x2::tx_context::TxContext",
+                "description": "Transaction context for object creation."
+            }
+        ],
+        "side_effects": [
+            {
+                "effect": "0x2::transfer::public_transfer",
+                "details": "Transfers newly created AdminCap to the caller. Object is newly created within the function."
+            }
+        ],
+        "description": "Initializes a new Scamtest instance with initial supply and creates associated AdminCap. Emits CreatedEvent.",
+        "score": "safe",
+        "warnings": [],
+        "returns": [
+            {
+                "name": "scamtest_instance",
+                "type": "Scamtest<T0>",
+                "description": "Newly created Scamtest instance."
+            },
+            {
+                "name": "admin_cap",
+                "type": "AdminCap<T0>",
+                "description": "Admin capability object for managing the instance."
+            }
+        ]
+    },
+    "add_slot": {
+        "name": "add_slot",
+        "params": [
+            {
+                "name": "operator_cap",
+                "type": "&OperatorCap<T0>",
+                "description": "Authorization capability for slot operations."
+            },
+            {
+                "name": "scamtest",
+                "type": "&mut Scamtest<T0>",
+                "description": "Mutable reference to Scamtest instance."
+            },
+            {
+                "name": "slot_key",
+                "type": "vector<u8>",
+                "description": "Byte vector identifying the slot."
+            },
+            {
+                "name": "validity_period",
+                "type": "u64",
+                "description": "Duration in milliseconds how long the slot remains valid."
+            },
+            {
+                "name": "clock",
+                "type": "&0x2::clock::Clock",
+                "description": "Clock reference for timestamp validation."
+            }
+        ],
+        "side_effects": [
+            {
+                "effect": "(Logging) emits SlotAddedEvent",
+                "details": "Records addition of new slot with expiration timestamp."
+            }
+        ],
+        "description": "Adds a new slot entry with expiration timestamp. Requires valid OperatorCap and not blacklisted operator.",
+        "score": "risky",
+        "warnings": [
+            "Slot validity period relies on client-side clock which could be manipulated in test environments.",
+            "Operator permissions not validated against admin cap - potential privilege escalation risk."
+        ],
+        "returns": []
+    },
+    "blacklist_operator": {
+        "name": "blacklist_operator",
+        "params": [
+            {
+                "name": "admin_cap",
+                "type": "&AdminCap<T0>",
+                "description": "Admin capability proving authorization."
+            },
+            {
+                "name": "scamtest",
+                "type": "&mut Scamtest<T0>",
+                "description": "Mutable Scamtest instance to modify."
+            },
+            {
+                "name": "operator_id",
+                "type": "0x2::object::ID",
+                "description": "ID of operator to blacklist."
+            }
+        ],
+        "side_effects": [
+            {
+                "effect": "(Logging) emits OperatorBlacklistedEvent",
+                "details": "Records operator blacklisting."
+            }
+        ],
+        "description": "Adds operator ID to blacklist preventing future operations. Requires AdminCap authorization.",
+        "score": "safe",
+        "warnings": [
+            "Irreversible operation with no un-blacklist functionality visible."
+        ],
+        "returns": []
+    },
+    "burn": {
+        "name": "burn",
+        "params": [
+            {
+                "name": "scamtest",
+                "type": "&mut Scamtest<T0>",
+                "description": "Mutable reference to Scamtest instance."
+            },
+            {
+                "name": "coin",
+                "type": "0x2::coin::Coin<T0>",
+                "description": "Coin to burn."
+            }
+        ],
+        "side_effects": [
+            {
+                "effect": "(Logging) emits BurnedEvent",
+                "details": "Records burn operation details."
+            },
+            {
+                "effect": "Reduces token supply",
+                "details": "Permanent reduction of total supply via 0x2::balance::decrease_supply."
+            }
+        ],
+        "description": "Burns specified amount of tokens permanently. Decreases total supply.",
+        "score": "high-risk",
+        "warnings": [
+            "Permanent token destruction mechanism - could lead to accidental asset loss.",
+            "No authorization check - possibly should require admin cap."
+        ],
+        "returns": []
+    },
+    "mint_to": {
+        "name": "mint_to",
+        "params": [
+            {
+                "name": "scamtest",
+                "type": "&mut Scamtest<T0>",
+                "description": "Mutable Scamtest instance."
+            },
+            {
+                "name": "tx_context",
+                "type": "&mut 0x2::tx_context::TxContext",
+                "description": "Tx context for sender address."
+            }
+        ],
+        "side_effects": [
+            {
+                "effect": "0x2::transfer::public_transfer of minted coins",
+                "details": "Mints fixed amount (10^10 units) and transfers to sender. New coins created and transferred."
+            }
+        ],
+        "description": "Mints fixed amount of tokens and sends them to transaction sender. No cap validation visible.",
+        "score": "critical-risk",
+        "warnings": [
+            "Uncontrolled minting without proper authorization checks.",
+            "Fixed large mint amount (10^10) could lead to inflation vulnerabilities."
+        ],
+        "returns": []
+    },
+    "new_operator_owned": {
+        "name": "new_operator_owned",
+        "params": [
+            {
+                "name": "admin_cap",
+                "type": "&AdminCap<T0>",
+                "description": "Admin capability to authorize creation."
+            },
+            {
+                "name": "scamtest",
+                "type": "&Scamtest<T0>",
+                "description": "Scamtest instance reference."
+            },
+            {
+                "name": "tx_context",
+                "type": "&mut 0x2::tx_context::TxContext",
+                "description": "Tx context for object creation."
+            }
+        ],
+        "side_effects": [
+            {
+                "effect": "0x2::transfer::transfer of new OperatorCap",
+                "details": "Transfers newly created OperatorCap to transaction sender address."
+            }
+        ],
+        "description": "Creates and transfers new Operator capability to sender. Requires AdminCap authorization.",
+        "score": "safe",
+        "warnings": [],
+        "returns": []
+    },
+    "check_secret": {
+        "name": "check_secret",
+        "params": [
+            {
+                "name": "scamtest",
+                "type": "&mut Scamtest<T0>",
+                "description": "Mutable Scamtest instance."
+            },
+            {
+                "name": "bet_amount",
+                "type": "u64",
+                "description": "Amount wagered in the bet."
+            },
+            {
+                "name": "secret",
+                "type": "vector<u8>",
+                "description": "User-provided secret for slot check."
+            },
+            {
+                "name": "clock",
+                "type": "&0x2::clock::Clock",
+                "description": "Clock for timestamp validation."
+            }
+        ],
+        "side_effects": [
+            {
+                "effect": "Conditional token minting/confiscation",
+                "details": "If secret hash matches existing slot: mints equivalent amount to user. Else, confiscates bet to 'scammed' balance. Decision depends on slot validity and hash match."
+            },
+            {
+                "effect": "Emits WinEvent or LoseEvent",
+                "details": "Logs outcome of bet attempt."
+            }
+        ],
+        "description": "Core gambling mechanic - checks secret against active slots. Mints reward or confiscates bet based on result.",
+        "score": "critical-risk",
+        "warnings": [
+            "High-risk gambling logic with direct funds control.",
+            "Slot verification uses simple hash check - vulnerable to brute-force if slot generation isn't secure.",
+            "Confiscated funds go to inaccessible 'scammed' balance with unclear recovery mechanism."
+        ],
+        "returns": [
+            {
+                "name": "is_winner",
+                "type": "bool",
+                "description": "True if secret matched valid slot, false otherwise."
+            }
+        ]
+    }
+
+}
+*/

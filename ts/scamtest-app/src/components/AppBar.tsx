@@ -9,11 +9,11 @@ import {
 } from '@dominion.zone/solid-sui';
 
 import styles from '../styles/AppBar.module.css';
-import { Show } from 'solid-js';
+import {Show} from 'solid-js';
 
 const AppBar = () => {
   const preferredWallets = [
-    {name: 'Sui wallet', url: 'https://suiwallet.com/'},
+    {name: 'Sui Wallet', url: 'https://suiwallet.com/'},
   ];
 
   const network = useSuiNetwork();
@@ -34,7 +34,7 @@ const AppBar = () => {
     <header class={styles.header}>
       <div class={styles.headerContainer}>
         <div class={styles.logo}>
-          <img class={styles.logoIcon} src='./scamtest.png'/>
+          <img class={styles.logoIcon} src="./scamtest.png" />
           <span>Fake scam</span>
         </div>
         {/*

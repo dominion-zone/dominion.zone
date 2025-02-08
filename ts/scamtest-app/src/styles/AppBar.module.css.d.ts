@@ -6,6 +6,7 @@ declare const styles: {
   readonly "logoIcon": string;
   readonly "menuToggle": string;
   readonly "navControls": string;
+  readonly "walletSelect": string;
 };
 export = styles;
 

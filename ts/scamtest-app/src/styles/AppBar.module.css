@@ -82,3 +82,7 @@ body {
   cursor: pointer;
   outline: none;
 }
+
+.wallet-select {
+  width: 100px
+}

@@ -1,10 +1,10 @@
 {
   "devnet": {
     "scamtest": {
-      "package": "0x3e1a27c774500c6ba230e280296d6ee62dbe2ea7ccc4fd58555044ac0bc267ff",
-      "upgradeCap": "0x84c61ca27fe3ec0fc50685e773cd7bba00e3285ce316ff462dbb91a57d0c9ff4",
-      "adminCap": "0x6766d84a9361d04712a55084005caef4f524540f78ba4be488ddb502d99143cd",
-      "scamtest": "0x0d45b5a5025f2f4f317ff54990f4407f82859d56a41b774272677f65db68c4cf"
+      "package": "0xab7bfc88eb5842de44a2ad3e4798a2c0f9d058b63ee83bdf5c08a908c36d674e",
+      "upgradeCap": "0x487e2f2f8b3eff8cab110d62dc53ceb6a19c611ebc36a57c998960381d0e1666",
+      "adminCap": "0xd1cf07f10e1132ec2bc8970eba1f3f04dbd4b19eb20361c2ebe707c2b0c49517",
+      "scamtest": "0x08a961a1f645eaaa1cad95f8ca4b0cdc624586fc671f29e16dd10f3e253ade98"
     }
   }
 }

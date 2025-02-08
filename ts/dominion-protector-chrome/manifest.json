@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Dominion Protector",
   "version": "1.0.0",
-  "action": {"default_popup": "index.html"},
+  "action": {"default_popup": "index.html/#/transaction"},
   "host_permissions": ["https://api.dominion.zone/*"],
   "background": {
     "service_worker": "src/scripts/background/index.ts"

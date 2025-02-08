@@ -44,6 +44,7 @@ export type SuiWalletSelectStyle = {
   ['check-icon']?: string;
   ['link-icon']?: string;
   icon?: string;
+  installLabel?: string;
 };
 
 export type SuiWalletSelectProps = Omit<
@@ -206,33 +207,48 @@ export const SuiWalletSelect: Component<SuiWalletSelectProps> = props => {
                   )}
                 </For>
                 <Show when={collection().nonInstalled.length > 0}>
-                  <ListboxLabel>Install:</ListboxLabel>
+                  <br />
+                  <ListboxLabel
+                    class={
+                      props.style?.installLabel ?? 'listbox__install-label'
+                    }
+                  >
+                    Install:
+                  </ListboxLabel>
+                  <br />
+
                   <For each={collection().nonInstalled}>
                     {({name, url}) => (
-                      <div
-                        class={
-                          props.style?.['option-content'] ??
-                          'listbox__option-content'
-                        }
+                      <ListboxOption
+                        class={props.style?.option ?? 'listbox__option'}
+                        value={name}
                       >
-                        <a
+                        <div
                           class={
-                            props.style?.['option-text'] ??
-                            'listbox__option-text'
+                            props.style?.['option-content'] ??
+                            'listbox__option-content'
                           }
-                          href={url}
-                          target="_blank"
                         >
-                          {name}
-                          <span
+                          <a
                             class={
-                              props.style?.['link-icon'] ?? 'listbox__link-icon'
+                              props.style?.['option-text'] ??
+                              'listbox__option-text'
                             }
+                            href={url}
+                            target="_blank"
                           >
-                            <ExternalLinkIcon />
-                          </span>
-                        </a>
-                      </div>
+                            {name}{' '}
+                            <span class={props.style?.icon ?? 'listbox__icon'}>
+                              <ExternalLinkIcon
+                                class={
+                                  props.style?.['link-icon'] ??
+                                  'listbox__link-icon'
+                                }
+                              />
+                            </span>
+                          </a>
+                        </div>
+                      </ListboxOption>
                     )}
                   </For>
                 </Show>

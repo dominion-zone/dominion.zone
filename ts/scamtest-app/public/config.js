@@ -3,9 +3,9 @@ window.CONFIG = {
   devnet: {
     scamtest: {
       package:
-        '0x3e1a27c774500c6ba230e280296d6ee62dbe2ea7ccc4fd58555044ac0bc267ff',
+        '0xab7bfc88eb5842de44a2ad3e4798a2c0f9d058b63ee83bdf5c08a908c36d674e',
       scamtest:
-        '0x0d45b5a5025f2f4f317ff54990f4407f82859d56a41b774272677f65db68c4cf',
+        '0x08a961a1f645eaaa1cad95f8ca4b0cdc624586fc671f29e16dd10f3e253ade98',
     },
     slotUrl: 'https://api.scamtest.xyz/slot',
   },

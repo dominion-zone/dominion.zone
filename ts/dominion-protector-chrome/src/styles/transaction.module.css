@@ -1,0 +1,16 @@
+.buttons {
+  margin-top: 20px;
+}
+
+.fix {
+  background-color: #f0ad4e;
+  color: white;
+}
+.cancel {
+  background-color: #d9534f;
+  color: white;
+}
+.proceed {
+  background-color: #5bc0de;
+  color: white;
+}

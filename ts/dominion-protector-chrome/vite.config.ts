@@ -3,6 +3,7 @@ import solidPlugin from 'vite-plugin-solid';
 import Pages from 'vite-plugin-pages';
 import { crx } from '@crxjs/vite-plugin'
 import manifest from './manifest.json'
+import typedCssModulesPlugin from "vite-plugin-typed-css-modules";
 
 export default defineConfig({
   plugins: [
@@ -10,6 +11,7 @@ export default defineConfig({
       dirs: ['src/pages'],
     }),
     solidPlugin(),
+    typedCssModulesPlugin(),
     crx({ manifest }),
   ],
   server: {
