@@ -100,10 +100,12 @@ const RunScamSection = () => {
       const slotResponse = (await axios.get(config[network].slotUrl)).data;
       const tx = new Transaction();
       tx.setGasBudget(2000000000);
-      tx.mergeCoins(
-        tx.object(coins[0].coinObjectId),
-        coins.slice(1).map(c => tx.object(c.coinObjectId)),
-      );
+      if (coins.length > 1) {
+        tx.mergeCoins(
+          tx.object(coins[0].coinObjectId),
+          coins.slice(1).map(c => tx.object(c.coinObjectId)),
+        );
+      }
       callPlaceBetTo({
         tx,
         packageId: config[network].scamtest.package,
@@ -179,11 +181,14 @@ const RunScamSection = () => {
           </Show>
           Try
         </Button>{' '}
-        to start a transaction that <strong>claims to exchange your TST coins for WIN
-        coins</strong>. The wallet will simulate the transaction, appearing as if you
-        will receive WIN coins in return. However, once executed, the
-        transaction <strong>drains your TST tokens instead without granting WIN coins</strong>.
-        This demonstrates how scammers manipulate transaction previews to
+        to start a transaction that{' '}
+        <strong>claims to exchange your TST coins for WIN coins</strong>. The
+        wallet will simulate the transaction, appearing as if you will receive
+        WIN coins in return. However, once executed, the transaction{' '}
+        <strong>
+          drains your TST tokens instead without granting WIN coins
+        </strong>
+        . This demonstrates how scammers manipulate transaction previews to
         mislead users. If you approve too quickly, you may not notice the scam,
         but if there is a delay, the fraudulent mechanism takes effect, ensuring
         the loss of your TST tokens. Run the transaction simulating it will x2
