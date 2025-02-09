@@ -21,7 +21,7 @@ export const installServeCLI = (program: Command) => {
       const operators = await client.getOwnedObjects({
         owner: wallet!.getPublicKey().toSuiAddress(),
         filter: {
-          StructType: `${config.scamtest.package}::scamtest::OperatorCap<${config.scamtest.package}::tst::TST>`,
+          StructType: `${config.scamtest.package}::scamtest::OperatorCap<${config.scamtest.package}::tst::TST,${config.scamtest.package}::win::WIN>`,
         },
       });
 

@@ -13,7 +13,7 @@ import {RoutePreloadFuncArgs} from '@solidjs/router';
 import {getCoinMetadata} from '../data/CoinMetadata';
 import {getCoinBalance} from '../data/CoinBalance';
 import RunScamSection from '../components/RunScamSection';
-import * as config from '../stores/config';
+import config from '../stores/config';
 
 export default function Home() {
   const network = useSuiNetwork();

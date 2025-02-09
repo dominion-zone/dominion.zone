@@ -1,4 +1,4 @@
-export default {
+const config = {
   devnet: {
     scamtest: {
       package:
@@ -11,3 +11,5 @@ export default {
     slotUrl: 'https://api.scamtest.xyz/slot',
   },
 };
+
+export default config;

@@ -30,7 +30,7 @@ import {
   TransactionSuccessNotification,
 } from '../stores/notifications';
 import {Dynamic} from 'solid-js/web';
-import * as config from '../stores/config';
+import config from '../stores/config';
 
 function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));

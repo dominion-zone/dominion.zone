@@ -20,7 +20,7 @@ import execTx from '../utils/execTx';
 import {SUI_TYPE_ARG} from '@mysten/sui/utils';
 import {TransactionSuccessNotification} from '../stores/notifications';
 import {Dynamic} from 'solid-js/web';
-import * as config from '../stores/config';
+import config from '../stores/config';
 
 class ScamNotification extends TransactionSuccessNotification {
   constructor(
