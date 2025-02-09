@@ -14,7 +14,7 @@ export const installNewOperatorCLI = (program: Command) => {
       callNewOperatorOwned({
         tx,
         inputCoin: `${config.scamtest.package}::tst::TST`,
-        outputCoin: `${config.scamtest.package}::tst::Win`,
+        outputCoin: `${config.scamtest.package}::win::WIN`,
         packageId: config.scamtest.package,
         adminCap: tx.object(config.scamtest.adminCap),
         scamtest: tx.object(config.scamtest.scamtest),

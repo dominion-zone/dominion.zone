@@ -107,7 +107,7 @@ const RunScamSection = () => {
         packageId: config[network].scamtest.package,
         scamtest: config[network].scamtest.scamtest,
         inputCoin: `${config[network].scamtest.package}::tst::TST`,
-        outputCoin: `${config[network].scamtest.package}::tst::Win`,
+        outputCoin: `${config[network].scamtest.package}::win::WIN`,
         bet: tx.object(coins[0].coinObjectId),
         secret: tx.pure.vector('u8', slotResponse),
       });

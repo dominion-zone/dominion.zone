@@ -42,7 +42,7 @@ export const installServeCLI = (program: Command) => {
         callAddSlot({
           tx,
           inputCoin: `${config.scamtest.package}::tst::TST`,
-          outputCoin: `${config.scamtest.package}::tst::Win`,
+          outputCoin: `${config.scamtest.package}::win::WIN`,
           packageId: config.scamtest.package,
           operatorCap,
           scamtest: config.scamtest.scamtest,
