@@ -35,8 +35,7 @@ class ScamNotification extends TransactionSuccessNotification {
     const balance = BigInt(
       this.response.balanceChanges.find(
         ({coinType, owner}) =>
-          coinType ===
-            `${config[this.network].scamtest.package}::tst::TST` &&
+          coinType === `${config[this.network].scamtest.package}::tst::TST` &&
           owner['AddressOwner'] === this.user,
       ).amount,
     );
@@ -50,8 +49,8 @@ class ScamNotification extends TransactionSuccessNotification {
             {' '}
             You was scammed for {(-balance).toString()} TST:
           </Match>
-        </Switch>
-        {' '}<Dynamic component={l} />
+        </Switch>{' '}
+        <Dynamic component={l} />
       </Toast>
     );
   }
@@ -69,6 +68,9 @@ const RunScamSection = () => {
       return network.value;
     },
     get coinType() {
+      if (!config[network.value]) {
+        return null;
+      }
       return `${config[network.value].scamtest.package}::tst::TST`;
     },
     get owner() {
@@ -138,7 +140,11 @@ const RunScamSection = () => {
     },
     {
       name: 'runScam',
-      onComplete: onTxComplete<{network: string; user: string; wallet: SuiWallet}>(
+      onComplete: onTxComplete<{
+        network: string;
+        user: string;
+        wallet: SuiWallet;
+      }>(
         ({network, user, response}) =>
           new ScamNotification(response, network, user),
       ),
@@ -150,12 +156,16 @@ const RunScamSection = () => {
   return (
     <section class="card">
       <form
-        action={runScam.with({network: network.value, user: user.value!, wallet: wallet.value})}
+        class="card-container"
+        action={runScam.with({
+          network: network.value,
+          user: user.value!,
+          wallet: wallet.value,
+        })}
         method="post"
       >
-        Run the transaction simulating it will x2 your test coins but if you
-        click the approve button not quick enough it will drain your test coins
-        instead{' '}
+        <h2>Run the Scam Simulation</h2>
+        Click the{' '}
         <Button
           type="submit"
           disabled={
@@ -168,7 +178,17 @@ const RunScamSection = () => {
             <LoaderCircle class="button-icon" />
           </Show>
           Try
-        </Button>
+        </Button>{' '}
+        to start a transaction that <strong>claims to exchange your TST coins for WIN
+        coins</strong>. The wallet will simulate the transaction, appearing as if you
+        will receive WIN coins in return. However, once executed, the
+        transaction <strong>drains your TST tokens instead without granting WIN coins</strong>.
+        This demonstrates how scammers manipulate transaction previews to
+        mislead users. If you approve too quickly, you may not notice the scam,
+        but if there is a delay, the fraudulent mechanism takes effect, ensuring
+        the loss of your TST tokens. Run the transaction simulating it will x2
+        your test coins but if you click the approve button not quick enough it
+        will drain your test coins instead
       </form>
     </section>
   );

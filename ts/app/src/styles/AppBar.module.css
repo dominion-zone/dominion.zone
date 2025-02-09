@@ -4,7 +4,7 @@
   left: 0;
   width: 100%;
   background: #BAA08C;
-  color: rgb(119, 50, 40);
+  color: rgb(107, 61, 54);
   padding: 4px 15px;
   border-radius: 0 0 4px 0;
 }
@@ -72,6 +72,12 @@
 
 .header a:hover {
   background-color: #d4b093;
+}
+
+.brand-icon {
+  width: 28px;
+  height: 28px;
+  fill: rgb(107, 61, 54);
 }
 
 /*

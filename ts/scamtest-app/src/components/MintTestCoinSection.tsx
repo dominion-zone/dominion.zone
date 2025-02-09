@@ -78,12 +78,13 @@ class MintTstSuccessNotification extends TransactionSuccessNotification {
   }
 }
 
-const Controller = () => {
+const MintTestCoinSection = () => {
   const network = useSuiNetwork();
   const wallet = useSuiWallet();
   const controller = useSuiWalletController();
   const user = useSuiUser();
   const client = useSuiClient();
+  /*
   const testCoin = CoinMetadata({
     get network() {
       return network.value;
@@ -92,16 +93,20 @@ const Controller = () => {
       return `${config[network.value].scamtest.package}::tst::TST`;
     },
   });
+  */
 
   const tstBalance = CoinBalance({
     get network() {
       return network.value;
     },
     get coinType() {
+      if (!config[network.value]) {
+        return null;
+      }
       return `${config[network.value].scamtest.package}::tst::TST`;
     },
     get owner() {
-      return user.value!;
+      return user.value;
     },
   });
 
@@ -216,67 +221,63 @@ const Controller = () => {
   const mintSubmission = useSubmission(mintTst);
 
   return (
-    <Show
-      when={tstBalance() && testCoin() && suiBalance()}
-      fallback={<Ellipsis />}
-    >
-      <form method="post">
-        Currently you have {suiBalance().totalBalance} SUI{' '}
-        <Button
-          formAction={faucet.with({network: network.value, user: user.value!})}
-          type="submit"
-          disabled={
-            controller.status !== 'connected' || faucetSubmission.pending
-          }
-        >
-          <Show when={faucetSubmission.pending}>
-            <LoaderCircle class="button-icon" />
-          </Show>
-          Faucet SUI
-        </Button>{' '}
-        and {tstBalance().totalBalance} {testCoin().symbol}.{' '}
-        <Button
-          formAction={mintTst.with({
-            network: network.value,
-            user: user.value!,
-            wallet: wallet.value!,
-          })}
-          type="submit"
-          disabled={controller.status !== 'connected' || mintSubmission.pending}
-        >
-          <Show when={mintSubmission.pending}>
-            <LoaderCircle class="button-icon" />
-          </Show>
-          Mint TST
-        </Button>
-      </form>
-    </Show>
-  );
-};
-
-const MintTestCoinSection = () => {
-  const network = useSuiNetwork();
-  const wallet = useSuiWallet();
-  const controller = useSuiWalletController();
-  const user = useSuiUser();
-
-  return (
     <section class="card">
-      <span>
-        <div>Mint the test coin</div>
+      <div class="card-container">
+        <h2>Mint Test Tokens</h2>
+        <form method="post">
+          <ul>
+            <li>
+              Click the{' '}
+              <Button
+                formAction={faucet.with({
+                  network: network.value,
+                  user: user.value!,
+                })}
+                type="submit"
+                disabled={
+                  controller.status !== 'connected' || faucetSubmission.pending
+                }
+              >
+                <Show when={faucetSubmission.pending}>
+                  <LoaderCircle class="button-icon" />
+                </Show>
+                Mint SUI
+              </Button>{' '}
+              button (Current balance: {suiBalance()?.totalBalance ?? '0'} devnet SUI)
+              to receive test SUI for transaction fees.
+            </li>
+            <li>
+              Click the{' '}
+              <Button
+                formAction={mintTst.with({
+                  network: network.value,
+                  user: user.value!,
+                  wallet: wallet.value!,
+                })}
+                type="submit"
+                disabled={
+                  controller.status !== 'connected' || mintSubmission.pending
+                }
+              >
+                <Show when={mintSubmission.pending}>
+                  <LoaderCircle class="button-icon" />
+                </Show>
+                Mint TST
+              </Button>{' '}
+              button (Current balance: {tstBalance()?.totalBalance ?? '0'} TST) to generate TST tokens, which are used for
+              the scam demonstration.
+            </li>
+          </ul>
+        </form>
+      </div>
+      <span class="icon">
         <Show
           when={
-            network.value === 'devnet' &&
-            user.value &&
-            wallet.value &&
-            wallet.value.chains.find(chain => chain === 'sui:devnet')
+            BigInt(tstBalance()?.totalBalance ?? '0') > 0n &&
+            BigInt(suiBalance()?.totalBalance ?? '0')
           }
+          fallback={<Ellipsis />}
         >
-          <Controller />
-        </Show>
-      </span>
-      <span class="icon">
-        <Show when={false} fallback={<Ellipsis />}>
           <Check />
         </Show>
       </span>

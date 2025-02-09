@@ -8,23 +8,35 @@ const CheckNetworkSection = () => {
 
   return (
     <section class="card">
-      <span>Switch your wallet to the devnet network</span>
+      <div class="card-container">
+        <h2>Switch to Devnet</h2>
+        <span>
+          Ensure your wallet is set to the <strong>SUI Devnet</strong> network
+          to access test tokens and the contract.
+        </span>
+      </div>
       <span class="icon">
         <Switch fallback={<Ellipsis />}>
-          <Match when={
-            wallet.value &&
-            controller.status === 'connected' &&
-            wallet.value.chains.find(chain => chain === 'sui:devnet') &&
-            wallet.value.chains.filter(chain => chain.startsWith('sui:')).length === 1
-          }>
+          <Match
+            when={
+              wallet.value &&
+              controller.status === 'connected' &&
+              wallet.value.chains.find(chain => chain === 'sui:devnet') &&
+              wallet.value.chains.filter(chain => chain.startsWith('sui:'))
+                .length === 1
+            }
+          >
             <Check />
           </Match>
-          <Match when={
-            wallet.value &&
-            controller.status === 'connected' &&
-            wallet.value.chains.find(chain => chain === 'sui:devnet') &&
-            wallet.value.chains.filter(chain => chain.startsWith('sui:')).length > 1
-          }>
+          <Match
+            when={
+              wallet.value &&
+              controller.status === 'connected' &&
+              wallet.value.chains.find(chain => chain === 'sui:devnet') &&
+              wallet.value.chains.filter(chain => chain.startsWith('sui:'))
+                .length > 1
+            }
+          >
             <ShieldQuestion />
           </Match>
         </Switch>

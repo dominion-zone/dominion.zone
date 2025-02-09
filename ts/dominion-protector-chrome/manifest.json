@@ -7,6 +7,9 @@
   "background": {
     "service_worker": "src/scripts/background/index.ts"
   },
+  "icons": {
+    "512": "dominion.png"
+  },
   "web_accessible_resources": [
     {
       "resources": ["**/*"],

@@ -8,7 +8,13 @@ const ConnectSection = () => {
 
   return (
     <section class="card">
-      <span>Choose and connect your wallet using the top bar</span>
+      <div class="card-container">
+        <h2>Connect Your Wallet to Start</h2>
+        <span>
+          Use the <strong>top bar</strong> to select and connect your preferred
+          wallet.
+        </span>
+      </div>
       <span class="icon">
         <Show
           when={wallet.value && controller.status === 'connected'}

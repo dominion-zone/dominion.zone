@@ -8,6 +8,7 @@ body {
   font-family: Arial, sans-serif;
   background: #DCCFAF;
   color: #444;
+  line-height: 1.5;
 }
 
 main {
@@ -27,13 +28,18 @@ main {
 button {
   display: inline-block;
   width: fit-content;
-  padding: 10px;
-  margin: 5px 0;
+  padding: 2px;
+  margin: 1px 0;
   border: none;
   cursor: pointer;
   font-size: 16px;
   font-weight: bold;
+  border: 1px solid #222;
   border-radius: 2px;
+}
+
+li {
+  list-style-type: none;
 }
 
 button:hover {
@@ -285,4 +291,14 @@ button:hover {
   border: 1px solid rgba(48, 18, 145, 0.2);
   border-radius: 0px;
   padding: 0.5rem;
+}
+
+h2 {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.card-container {
+  width: 100%;
 }
