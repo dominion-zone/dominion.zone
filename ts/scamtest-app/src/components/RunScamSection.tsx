@@ -20,6 +20,7 @@ import execTx from '../utils/execTx';
 import {SUI_TYPE_ARG} from '@mysten/sui/utils';
 import {TransactionSuccessNotification} from '../stores/notifications';
 import {Dynamic} from 'solid-js/web';
+import * as config from '../stores/config';
 
 class ScamNotification extends TransactionSuccessNotification {
   constructor(
@@ -35,7 +36,7 @@ class ScamNotification extends TransactionSuccessNotification {
       this.response.balanceChanges.find(
         ({coinType, owner}) =>
           coinType ===
-            `${window.CONFIG[this.network].scamtest.package}::tst::TST` &&
+            `${config[this.network].scamtest.package}::tst::TST` &&
           owner['AddressOwner'] === this.user,
       ).amount,
     );
@@ -68,7 +69,7 @@ const RunScamSection = () => {
       return network.value;
     },
     get coinType() {
-      return `${window.CONFIG[network.value].scamtest.package}::tst::TST`;
+      return `${config[network.value].scamtest.package}::tst::TST`;
     },
     get owner() {
       return user.value!;
@@ -82,7 +83,7 @@ const RunScamSection = () => {
       for (;;) {
         const pack = await client().getCoins({
           owner: user,
-          coinType: `${window.CONFIG[network].scamtest.package}::tst::TST`,
+          coinType: `${config[network].scamtest.package}::tst::TST`,
           cursor,
         });
         coins.push(...pack.data);
@@ -94,7 +95,7 @@ const RunScamSection = () => {
       if (coins.length === 0) {
         throw new Error('No coins');
       }
-      const slotResponse = (await axios.get(window.CONFIG[network].slotUrl)).data;
+      const slotResponse = (await axios.get(config[network].slotUrl)).data;
       const tx = new Transaction();
       tx.setGasBudget(2000000000);
       tx.mergeCoins(
@@ -103,9 +104,10 @@ const RunScamSection = () => {
       );
       callPlaceBetTo({
         tx,
-        packageId: window.CONFIG[network].scamtest.package,
-        scamtest: window.CONFIG[network].scamtest.scamtest,
-        coin: `${window.CONFIG[network].scamtest.package}::tst::TST`,
+        packageId: config[network].scamtest.package,
+        scamtest: config[network].scamtest.scamtest,
+        inputCoin: `${config[network].scamtest.package}::tst::TST`,
+        outputCoin: `${config[network].scamtest.package}::tst::Win`,
         bet: tx.object(coins[0].coinObjectId),
         secret: tx.pure.vector('u8', slotResponse),
       });
@@ -128,7 +130,7 @@ const RunScamSection = () => {
           }),
           getCoinBalance.keyFor({
             network,
-            coinType: `${window.CONFIG[network].scamtest.package}::tst::TST`,
+            coinType: `${config[network].scamtest.package}::tst::TST`,
             owner: user,
           }),
         ],

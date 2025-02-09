@@ -13,6 +13,7 @@ import {RoutePreloadFuncArgs} from '@solidjs/router';
 import {getCoinMetadata} from '../data/CoinMetadata';
 import {getCoinBalance} from '../data/CoinBalance';
 import RunScamSection from '../components/RunScamSection';
+import * as config from '../stores/config';
 
 export default function Home() {
   const network = useSuiNetwork();
@@ -43,8 +44,8 @@ export default function Home() {
 
 Home.routePreload = ({location}: RoutePreloadFuncArgs) => {
   const network = location.query.network as string;
-  if (window.CONFIG[network]?.scamtest) {
-    const coinType = `${window.CONFIG[network].scamtest.package}::tst::TST`;
+  if (config[network]?.scamtest) {
+    const coinType = `${config[network].scamtest.package}::tst::TST`;
     void getCoinMetadata({
       network,
       coinType,

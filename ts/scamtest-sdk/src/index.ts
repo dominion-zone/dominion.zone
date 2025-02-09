@@ -44,47 +44,25 @@ export type NestedResults = {
 
 // === Entry functions ===
 
-export const callPlaceBetMut = ({
-  tx,
-  packageId,
-  coin,
-  scamtest,
-  bet,
-  secret,
-}: {
-  tx: Transaction;
-  packageId: string;
-  coin: string;
-  scamtest: TransactionObjectInput;
-  bet: TransactionArgument;
-  secret: TransactionArgument;
-}): Result => {
-  return tx.moveCall({
-    typeArguments: [coin],
-    arguments: [tx.object(scamtest), bet, secret, tx.object.clock()],
-    package: packageId,
-    module: 'scamtest',
-    function: 'place_bet_mut',
-  });
-};
-
 export const callPlaceBetTo = ({
   tx,
   packageId,
-  coin,
+  inputCoin,
+  outputCoin,
   scamtest,
   bet,
   secret,
 }: {
   tx: Transaction;
   packageId: string;
-  coin: string;
+  inputCoin: string;
+  outputCoin: string;
   scamtest: TransactionObjectInput;
   bet: TransactionArgument;
   secret: TransactionArgument;
 }): Result => {
   return tx.moveCall({
-    typeArguments: [coin],
+    typeArguments: [inputCoin, outputCoin],
     arguments: [tx.object(scamtest), bet, secret, tx.object.clock()],
     package: packageId,
     module: 'scamtest',
@@ -92,41 +70,40 @@ export const callPlaceBetTo = ({
   });
 };
 
-export const callMintTo = ({
+export const callMintTstTo = ({
   tx,
   packageId,
-  coin,
-  scamtest,
+  treasuryCap,
 }: {
   tx: Transaction;
   packageId: string;
-  coin: string;
-  scamtest: TransactionObjectInput;
+  treasuryCap: TransactionObjectInput;
 }): Result => {
   return tx.moveCall({
-    typeArguments: [coin],
-    arguments: [tx.object(scamtest)],
+    arguments: [tx.object(treasuryCap)],
     package: packageId,
-    module: 'scamtest',
+    module: 'tst',
     function: 'mint_to',
   });
 };
 
-export const callBurn = ({
+export const callBurnWin = ({
   tx,
   packageId,
-  coin,
+  inputCoin,
+  outputCoin,
   scamtest,
   tokens,
 }: {
   tx: Transaction;
   packageId: string;
-  coin: string;
+  inputCoin: string;
+  outputCoin: string;
   scamtest: TransactionObjectInput;
   tokens: TransactionObjectInput;
 }): Result => {
   return tx.moveCall({
-    typeArguments: [coin],
+    typeArguments: [inputCoin, outputCoin],
     arguments: [tx.object(scamtest), tx.object(tokens)],
     package: packageId,
     module: 'scamtest',
@@ -134,19 +111,45 @@ export const callBurn = ({
   });
 };
 
+export const callBurnTst = ({
+  tx,
+  packageId,
+  inputCoin,
+  outputCoin,
+  treasuryCap,
+  tokens,
+}: {
+  tx: Transaction;
+  packageId: string;
+  inputCoin: string;
+  outputCoin: string;
+  treasuryCap: TransactionObjectInput;
+  tokens: TransactionObjectInput;
+}): Result => {
+  return tx.moveCall({
+    typeArguments: [inputCoin, outputCoin],
+    arguments: [tx.object(treasuryCap), tx.object(tokens)],
+    package: packageId,
+    module: 'tst',
+    function: 'burn',
+  });
+};
+
 export const callCleanupSlots = ({
   tx,
   packageId,
-  coin,
+  inputCoin,
+  outputCoin,
   scamtest,
 }: {
   tx: Transaction;
   packageId: string;
-  coin: string;
+  inputCoin: string;
+  outputCoin: string;
   scamtest: TransactionObjectInput;
 }): void => {
   tx.moveCall({
-    typeArguments: [coin],
+    typeArguments: [inputCoin, outputCoin],
     arguments: [tx.object(scamtest), tx.object.clock()],
     package: packageId,
     module: 'scamtest',
@@ -157,18 +160,20 @@ export const callCleanupSlots = ({
 export const callNewOperatorOwned = ({
   tx,
   packageId,
-  coin,
+  inputCoin,
+  outputCoin,
   adminCap,
   scamtest,
 }: {
   tx: Transaction;
   packageId: string;
-  coin: string;
+  inputCoin: string;
+  outputCoin: string;
   adminCap: TransactionObjectInput;
   scamtest: TransactionObjectInput;
 }): void => {
   tx.moveCall({
-    typeArguments: [coin],
+    typeArguments: [inputCoin, outputCoin],
     arguments: [tx.object(adminCap), tx.object(scamtest)],
     package: packageId,
     module: 'scamtest',
@@ -179,20 +184,22 @@ export const callNewOperatorOwned = ({
 export const callBlacklistOperator = ({
   tx,
   packageId,
-  coin,
+  inputCoin,
+  outputCoin,
   adminCap,
   scamtest,
   operatorId,
 }: {
   tx: Transaction;
   packageId: string;
-  coin: string;
+  inputCoin: string;
+  outputCoin: string;
   adminCap: TransactionObjectInput;
   scamtest: TransactionObjectInput;
   operatorId: TransactionArgument;
 }): void => {
   tx.moveCall({
-    typeArguments: [coin],
+    typeArguments: [inputCoin, outputCoin],
     arguments: [tx.object(adminCap), tx.object(scamtest), operatorId],
     package: packageId,
     module: 'scamtest',
@@ -203,18 +210,20 @@ export const callBlacklistOperator = ({
 export const callDestroyOperator = ({
   tx,
   packageId,
-  coin,
+  inputCoin,
+  outputCoin,
   operatorCap,
   scamtest,
 }: {
   tx: Transaction;
   packageId: string;
-  coin: string;
+  inputCoin: string;
+  outputCoin: string;
   operatorCap: TransactionObjectInput;
   scamtest: TransactionObjectInput;
 }): void => {
   tx.moveCall({
-    typeArguments: [coin],
+    typeArguments: [inputCoin, outputCoin],
     arguments: [tx.object(operatorCap), tx.object(scamtest)],
     package: packageId,
     module: 'scamtest',
@@ -225,7 +234,8 @@ export const callDestroyOperator = ({
 export const callAddSlot = ({
   tx,
   packageId,
-  coin,
+  inputCoin,
+  outputCoin,
   operatorCap,
   scamtest,
   slot,
@@ -233,14 +243,15 @@ export const callAddSlot = ({
 }: {
   tx: Transaction;
   packageId: string;
-  coin: string;
+  inputCoin: string;
+  outputCoin: string;
   operatorCap: TransactionObjectInput;
   scamtest: TransactionObjectInput;
   slot: TransactionArgument;
   timeout: TransactionArgument;
 }): void => {
   tx.moveCall({
-    typeArguments: [coin],
+    typeArguments: [inputCoin, outputCoin],
     arguments: [
       tx.object(operatorCap),
       tx.object(scamtest),
@@ -257,20 +268,22 @@ export const callAddSlot = ({
 export const callRemoveSlot = ({
   tx,
   packageId,
-  coin,
+  inputCoin,
+  outputCoin,
   operatorCap,
   scamtest,
   slot,
 }: {
   tx: Transaction;
   packageId: string;
-  coin: string;
+  inputCoin: string;
+  outputCoin: string;
   operatorCap: TransactionObjectInput;
   scamtest: TransactionObjectInput;
   slot: TransactionArgument;
 }): void => {
   tx.moveCall({
-    typeArguments: [coin],
+    typeArguments: [inputCoin, outputCoin],
     arguments: [
       tx.object(operatorCap),
       tx.object(scamtest),
@@ -286,18 +299,20 @@ export const callRemoveSlot = ({
 export const callResetSlots = ({
   tx,
   packageId,
-  coin,
+  inputCoin,
+  outputCoin,
   operatorCap,
   scamtest,
 }: {
   tx: Transaction;
   packageId: string;
-  coin: string;
+  inputCoin: string;
+  outputCoin: string;
   operatorCap: TransactionObjectInput;
   scamtest: TransactionObjectInput;
 }): void => {
   tx.moveCall({
-    typeArguments: [coin],
+    typeArguments: [inputCoin, outputCoin],
     arguments: [tx.object(operatorCap), tx.object(scamtest), tx.object.clock()],
     package: packageId,
     module: 'scamtest',
@@ -307,47 +322,25 @@ export const callResetSlots = ({
 
 // === Public Functions ===
 
-export const callPlaceBetBalanceMut = ({
-  tx,
-  packageId,
-  coin,
-  scamtest,
-  bet,
-  secret,
-}: {
-  tx: Transaction;
-  packageId: string;
-  coin: string;
-  scamtest: TransactionObjectInput;
-  bet: TransactionArgument;
-  secret: TransactionArgument;
-}): void => {
-  tx.moveCall({
-    typeArguments: [coin],
-    arguments: [tx.object(scamtest), bet, secret, tx.object.clock()],
-    package: packageId,
-    module: 'scamtest',
-    function: 'place_bet_balance_mut',
-  });
-};
-
 export const callPlaceBetBalance = ({
   tx,
   packageId,
-  coin,
+  inputCoin,
+  outputCoin,
   scamtest,
   bet,
   secret,
 }: {
   tx: Transaction;
   packageId: string;
-  coin: string;
+  inputCoin: string;
+  outputCoin: string;
   scamtest: TransactionObjectInput;
   bet: TransactionArgument;
   secret: TransactionArgument;
 }): Result => {
   return tx.moveCall({
-    typeArguments: [coin],
+    typeArguments: [inputCoin, outputCoin],
     arguments: [tx.object(scamtest), bet, secret, tx.object.clock()],
     package: packageId,
     module: 'scamtest',
@@ -355,44 +348,72 @@ export const callPlaceBetBalance = ({
   });
 };
 
-export const callMintBalance = ({
+export const callMintTstBalance = ({
   tx,
   packageId,
-  coin,
+  inputCoin,
+  outputCoin,
   scamtest,
 }: {
   tx: Transaction;
   packageId: string;
-  coin: string;
+  inputCoin: string;
+  outputCoin: string;
   scamtest: TransactionObjectInput;
 }): Result => {
   return tx.moveCall({
-    typeArguments: [coin],
+    typeArguments: [inputCoin, outputCoin],
     arguments: [tx.object(scamtest)],
     package: packageId,
-    module: 'scamtest',
+    module: 'tst',
     function: 'mint_balance',
   });
 };
 
-export const callBurnBalance = ({
+export const callBurnWinBalance = ({
   tx,
   packageId,
-  coin,
+  inputCoin,
+  outputCoin,
   scamtest,
   balance,
 }: {
   tx: Transaction;
   packageId: string;
-  coin: string;
+  inputCoin: string;
+  outputCoin: string;
   scamtest: TransactionObjectInput;
   balance: TransactionArgument;
 }): Result => {
   return tx.moveCall({
-    typeArguments: [coin],
+    typeArguments: [inputCoin, outputCoin],
     arguments: [tx.object(scamtest), balance],
     package: packageId,
     module: 'scamtest',
+    function: 'burn_balance',
+  });
+};
+
+export const callBurnTstBalance = ({
+  tx,
+  packageId,
+  inputCoin,
+  outputCoin,
+  scamtest,
+  balance,
+}: {
+  tx: Transaction;
+  packageId: string;
+  inputCoin: string;
+  outputCoin: string;
+  scamtest: TransactionObjectInput;
+  balance: TransactionArgument;
+}): Result => {
+  return tx.moveCall({
+    typeArguments: [inputCoin, outputCoin],
+    arguments: [tx.object(scamtest), balance],
+    package: packageId,
+    module: 'tst',
     function: 'burn_balance',
   });
 };
@@ -402,16 +423,18 @@ export const callBurnBalance = ({
 export const callAdminCapId = ({
   tx,
   packageId,
-  coin,
+  inputCoin,
+  outputCoin,
   scamtest,
 }: {
   tx: Transaction;
   packageId: string;
-  coin: string;
+  inputCoin: string;
+  outputCoin: string;
   scamtest: TransactionObjectInput;
 }): Result => {
   return tx.moveCall({
-    typeArguments: [coin],
+    typeArguments: [inputCoin, outputCoin],
     arguments: [tx.object(scamtest)],
     package: packageId,
     module: 'scamtest',
@@ -422,16 +445,18 @@ export const callAdminCapId = ({
 export const callSupplyValue = ({
   tx,
   packageId,
-  coin,
+  inputCoin,
+  outputCoin,
   scamtest,
 }: {
   tx: Transaction;
   packageId: string;
-  coin: string;
+  inputCoin: string;
+  outputCoin: string;
   scamtest: TransactionObjectInput;
 }): Result => {
   return tx.moveCall({
-    typeArguments: [coin],
+    typeArguments: [inputCoin, outputCoin],
     arguments: [tx.object(scamtest)],
     package: packageId,
     module: 'scamtest',
@@ -442,16 +467,18 @@ export const callSupplyValue = ({
 export const callScammedValue = ({
   tx,
   packageId,
-  coin,
+  inputCoin,
+  outputCoin,
   scamtest,
 }: {
   tx: Transaction;
   packageId: string;
-  coin: string;
+  inputCoin: string;
+  outputCoin: string;
   scamtest: TransactionObjectInput;
 }): Result => {
   return tx.moveCall({
-    typeArguments: [coin],
+    typeArguments: [inputCoin, outputCoin],
     arguments: [tx.object(scamtest)],
     package: packageId,
     module: 'scamtest',
@@ -462,16 +489,18 @@ export const callScammedValue = ({
 export const callAdminCapScamtestId = ({
   tx,
   packageId,
-  coin,
+  inputCoin,
+  outputCoin,
   adminCap,
 }: {
   tx: Transaction;
   packageId: string;
-  coin: string;
+  inputCoin: string;
+  outputCoin: string;
   adminCap: TransactionObjectInput;
 }): Result => {
   return tx.moveCall({
-    typeArguments: [coin],
+    typeArguments: [inputCoin, outputCoin],
     arguments: [tx.object(adminCap)],
     package: packageId,
     module: 'scamtest',
@@ -482,16 +511,18 @@ export const callAdminCapScamtestId = ({
 export const callOperatorCapScamtestId = ({
   tx,
   packageId,
-  coin,
+  inputCoin,
+  outputCoin,
   operatorCap,
 }: {
   tx: Transaction;
   packageId: string;
-  coin: string;
+  inputCoin: string;
+  outputCoin: string;
   operatorCap: TransactionObjectInput;
 }): Result => {
   return tx.moveCall({
-    typeArguments: [coin],
+    typeArguments: [inputCoin, outputCoin],
     arguments: [tx.object(operatorCap)],
     package: packageId,
     module: 'scamtest',
@@ -504,16 +535,18 @@ export const callOperatorCapScamtestId = ({
 export const callNew = ({
   tx,
   packageId,
-  coin,
+  inputCoin,
+  outputCoin,
   supply,
 }: {
   tx: Transaction;
   packageId: string;
-  coin: string;
+  inputCoin: string;
+  outputCoin: string;
   supply: TransactionArgument;
 }): NestedResults => {
   return tx.moveCall({
-    typeArguments: [coin],
+    typeArguments: [inputCoin, outputCoin],
     arguments: [supply],
     package: packageId,
     module: 'scamtest',
@@ -524,16 +557,18 @@ export const callNew = ({
 export const callShare = ({
   tx,
   packageId,
-  coin,
+  inputCoin,
+  outputCoin,
   scamtest,
 }: {
   tx: Transaction;
   packageId: string;
-  coin: string;
+  inputCoin: string;
+  outputCoin: string;
   scamtest: TransactionArgument;
 }): void => {
   tx.moveCall({
-    typeArguments: [coin],
+    typeArguments: [inputCoin, outputCoin],
     arguments: [scamtest],
     package: packageId,
     module: 'scamtest',
@@ -544,18 +579,20 @@ export const callShare = ({
 export const callAssertAdminCap = ({
   tx,
   packageId,
-  coin,
+  inputCoin,
+  outputCoin,
   adminCap,
   scamtest,
 }: {
   tx: Transaction;
   packageId: string;
-  coin: string;
+  inputCoin: string;
+  outputCoin: string;
   adminCap: TransactionObjectInput;
   scamtest: TransactionObjectInput;
 }): void => {
   tx.moveCall({
-    typeArguments: [coin],
+    typeArguments: [inputCoin, outputCoin],
     arguments: [tx.object(adminCap), tx.object(scamtest)],
     package: packageId,
     module: 'scamtest',
@@ -566,18 +603,20 @@ export const callAssertAdminCap = ({
 export const callNewOperator = ({
   tx,
   packageId,
-  coin,
+  inputCoin,
+  outputCoin,
   adminCap,
   scamtest,
 }: {
   tx: Transaction;
   packageId: string;
-  coin: string;
+  inputCoin: string;
+  outputCoin: string;
   adminCap: TransactionObjectInput;
   scamtest: TransactionObjectInput;
 }): Result => {
   return tx.moveCall({
-    typeArguments: [coin],
+    typeArguments: [inputCoin, outputCoin],
     arguments: [tx.object(adminCap), tx.object(scamtest)],
     package: packageId,
     module: 'scamtest',
@@ -590,18 +629,20 @@ export const callNewOperator = ({
 export const callAssertOperatorCap = ({
   tx,
   packageId,
-  coin,
+  inputCoin,
+  outputCoin,
   operatorCap,
   scamtest,
 }: {
   tx: Transaction;
   packageId: string;
-  coin: string;
+  inputCoin: string;
+  outputCoin: string;
   operatorCap: TransactionObjectInput;
   scamtest: TransactionObjectInput;
 }): void => {
   tx.moveCall({
-    typeArguments: [coin],
+    typeArguments: [inputCoin, outputCoin],
     arguments: [tx.object(operatorCap), tx.object(scamtest)],
     package: packageId,
     module: 'scamtest',

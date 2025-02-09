@@ -21,6 +21,7 @@ import {isWalletWithRequiredFeatureSet} from '@mysten/wallet-standard';
 import AppBar from './components/AppBar';
 import {setConfigs, suiClientCache} from './stores/suiClient';
 import AppToaster from './components/AppToaster';
+import * as config from './stores/config';
 
 const App: Component<RouteSectionProps> = props => {
   const [searchParams, setSearchParams] = useSearchParams<{
@@ -77,7 +78,7 @@ const App: Component<RouteSectionProps> = props => {
       if (typeof value === 'function') {
         value = value(prev);
       }
-      if (window.CONFIG[value]) {
+      if (config[value]) {
         return value;
       } else {
         return prev;

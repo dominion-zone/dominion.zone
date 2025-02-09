@@ -1,10 +1,11 @@
 {
   "devnet": {
     "scamtest": {
-      "package": "0xab7bfc88eb5842de44a2ad3e4798a2c0f9d058b63ee83bdf5c08a908c36d674e",
-      "upgradeCap": "0x487e2f2f8b3eff8cab110d62dc53ceb6a19c611ebc36a57c998960381d0e1666",
-      "adminCap": "0xd1cf07f10e1132ec2bc8970eba1f3f04dbd4b19eb20361c2ebe707c2b0c49517",
-      "scamtest": "0x08a961a1f645eaaa1cad95f8ca4b0cdc624586fc671f29e16dd10f3e253ade98"
+      "package": "0x71da48b45bfaec9cca02bf57f4d7a1cb56ba9adb9e2e0469f9410e22970981cd",
+      "scamtest": "0x0894815914d378ef66374295b432177ac78e3b56a8342c4f7440ece10e1b766c",
+      "tstCap": "0x0c29ef781c04df05002b7c62370d153211e21422be4f4fe78462e41ee4196886",
+      "upgradeCap": "0x4a144425b920396d99f9f167605a6253ea5d11b17a2bfdcebaf233cbcdd4a810",
+      "adminCap": "0x394b9e7ce9751a745dafab1e7fd4cfa60f208d3f0ec678525194ad5a365bec2f"
     }
   }
 }

@@ -13,7 +13,8 @@ export const installNewOperatorCLI = (program: Command) => {
       tx.setGasBudget(2000000000);
       callNewOperatorOwned({
         tx,
-        coin: `${config.scamtest.package}::tst::TST`,
+        inputCoin: `${config.scamtest.package}::tst::TST`,
+        outputCoin: `${config.scamtest.package}::tst::Win`,
         packageId: config.scamtest.package,
         adminCap: tx.object(config.scamtest.adminCap),
         scamtest: tx.object(config.scamtest.scamtest),

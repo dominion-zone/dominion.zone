@@ -13,7 +13,7 @@ import {CoinMetadata} from '../data/CoinMetadata';
 import {CoinBalance, getCoinBalance} from '../data/CoinBalance';
 import {action, json, Submission, useSubmission} from '@solidjs/router';
 import {Transaction} from '@mysten/sui/transactions';
-import {callMintTo} from '@dominion.zone/scamtest-sdk';
+import {callMintTstTo} from '@dominion.zone/scamtest-sdk';
 import {SUI_TYPE_ARG} from '@mysten/sui/utils';
 import {
   getFaucetHost,
@@ -30,6 +30,7 @@ import {
   TransactionSuccessNotification,
 } from '../stores/notifications';
 import {Dynamic} from 'solid-js/web';
+import * as config from '../stores/config';
 
 function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -88,7 +89,7 @@ const Controller = () => {
       return network.value;
     },
     get coinType() {
-      return `${window.CONFIG[network.value].scamtest.package}::tst::TST`;
+      return `${config[network.value].scamtest.package}::tst::TST`;
     },
   });
 
@@ -97,7 +98,7 @@ const Controller = () => {
       return network.value;
     },
     get coinType() {
-      return `${window.CONFIG[network.value].scamtest.package}::tst::TST`;
+      return `${config[network.value].scamtest.package}::tst::TST`;
     },
     get owner() {
       return user.value!;
@@ -171,11 +172,10 @@ const Controller = () => {
   const mintTst = action(
     async ({network, user, wallet}) => {
       const tx = new Transaction();
-      callMintTo({
+      callMintTstTo({
         tx,
-        packageId: window.CONFIG[network].scamtest.package,
-        scamtest: window.CONFIG[network].scamtest.scamtest,
-        coin: `${window.CONFIG[network].scamtest.package}::tst::TST`,
+        packageId: config[network].scamtest.package,
+        treasuryCap: config[network].scamtest.tstCap,
       });
       const result = await execTx({
         tx,
@@ -193,7 +193,7 @@ const Controller = () => {
           }),
           getCoinBalance.keyFor({
             network,
-            coinType: `${window.CONFIG[network].scamtest.package}::tst::TST`,
+            coinType: `${config[network].scamtest.package}::tst::TST`,
             owner: user,
           }),
         ],

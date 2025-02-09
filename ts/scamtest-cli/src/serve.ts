@@ -41,7 +41,8 @@ export const installServeCLI = (program: Command) => {
         tx.setGasBudget(2000000000);
         callAddSlot({
           tx,
-          coin: `${config.scamtest.package}::tst::TST`,
+          inputCoin: `${config.scamtest.package}::tst::TST`,
+          outputCoin: `${config.scamtest.package}::tst::Win`,
           packageId: config.scamtest.package,
           operatorCap,
           scamtest: config.scamtest.scamtest,

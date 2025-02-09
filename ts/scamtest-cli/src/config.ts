@@ -3,6 +3,7 @@ export type ScamtestConfig = {
   upgradeCap: string;
   adminCap: string;
   scamtest: string;
+  tstCap: string;
 };
 
 export type Config = {

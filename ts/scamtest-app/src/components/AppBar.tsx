@@ -7,6 +7,7 @@ import {
   SuiWalletSelect,
   ConnectSuiButton,
 } from '@dominion.zone/solid-sui';
+import * as config from '../stores/config';
 
 import styles from '../styles/AppBar.module.css';
 import {Show} from 'solid-js';
@@ -28,7 +29,7 @@ const AppBar = () => {
   };
   */
 
-  const networks = () => Object.keys(window.CONFIG);
+  const networks = () => Object.keys(config);
 
   return (
     <header class={styles.header}>
