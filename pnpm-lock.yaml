@@ -10,9 +10,15 @@ importers:
 
   ts/app:
     dependencies:
+      '@dominion.zone/solid-sui':
+        specifier: workspace:*
+        version: link:../solid-sui
       '@solidjs/router':
         specifier: ^0.15.1
         version: 0.15.3(solid-js@1.9.4)
+      axios:
+        specifier: ^1.7.9
+        version: 1.7.9
       lucide-solid:
         specifier: ^0.471.0
         version: 0.471.0(solid-js@1.9.4)

@@ -5,3 +5,4 @@ packages:
   - 'ts/scamtest-app'
   - 'ts/solid-sui'
   - 'ts/dominion-protector-chrome'
+  - 'ts/app'
