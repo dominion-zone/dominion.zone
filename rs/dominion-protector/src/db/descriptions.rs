@@ -40,7 +40,7 @@ pub async fn create_description_tables_if_needed(client: &Client) -> Result<()> 
             description     TEXT NOT NULL,
             address_owned   TEXT,
             object_owned    TEXT,
-            inner           TEXT,
+            wrapped           TEXT,
             shared          TEXT,
             immutable       TEXT,
             warnings        TEXT[] NOT NULL DEFAULT '{}',
@@ -82,9 +82,9 @@ pub async fn create_description_tables_if_needed(client: &Client) -> Result<()> 
             wrapped         TEXT,
             modified        TEXT,
             dropped         TEXT,
-            warnings        TEXT[] NOT NULL DEFAULT '{}',
+            warnings        TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
             FOREIGN KEY(package_id, network) REFERENCES objects(id, network),
-            FOREIGN KEY(package_id, network, module) REFERENCES package_modules(package_id, network, name)
+            FOREIGN KEY(package_id, network, module) REFERENCES package_modules(package_id, network, name),
             FOREIGN KEY(package_id, network, module, function) REFERENCES function_descriptions(package_id, network, module, function)
         );
     ").await?;
@@ -93,7 +93,7 @@ pub async fn create_description_tables_if_needed(client: &Client) -> Result<()> 
 
 #[derive(Debug, Clone, Copy, ToSql, FromSql)]
 #[postgres(name = "security_level")]
-enum SecurityLevel {
+pub enum SecurityLevel {
     #[postgres(name = "Critical Risk")]
     CriticalRisk,
     #[postgres(name = "High Risk")]
@@ -216,7 +216,7 @@ impl ModuleDescription {
         return Ok(Some(ModuleDescription::try_from(&rows[0])?));
     }
 
-    async fn save_to_db(&self, tx: &mut Transaction<'_>) -> Result<bool> {
+    pub async fn save_to_db(&self, tx: &mut Transaction<'_>) -> Result<bool> {
         let rows = tx.execute(
             &format!(
                 "INSERT INTO module_descriptions ({})
@@ -303,7 +303,7 @@ pub struct StructDescription {
     pub description: String,
     pub address_owned: Option<String>,
     pub object_owned: Option<String>,
-    pub inner: Option<String>,
+    pub wrapped: Option<String>,
     pub shared: Option<String>,
     pub immutable: Option<String>,
     pub warnings: Vec<String>,
@@ -318,7 +318,7 @@ impl StructDescription {
         "description",
         "address_owned",
         "object_owned",
-        "inner",
+        "wrapped",
         "shared",
         "immutable",
         "warnings",
@@ -384,7 +384,7 @@ impl StructDescription {
                 "INSERT INTO struct_descriptions ({})
     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
     ON CONFLICT (package_id, network, module, struct) DO UPDATE
-    SET description = $4, address_owned = $5, object_owned = $6, inner = $7, shared = $8, immutable = $9, warnings = $10",
+    SET description = $4, address_owned = $5, object_owned = $6, wrapped = $7, shared = $8, immutable = $9, warnings = $10",
                 StructDescription::COLUMNS.join(", ")
             ),
             &[
@@ -395,7 +395,7 @@ impl StructDescription {
                 &self.description,
                 &self.address_owned,
                 &self.object_owned,
-                &self.inner,
+                &self.wrapped,
                 &self.shared,
                 &self.immutable,
                 &self.warnings,
@@ -452,11 +452,11 @@ impl TryFrom<&Row> for StructDescription {
                 .position(|c| c.name() == "object_owned")
                 .context("object_owned column not found")?,
         );
-        let inner: Option<String> = value.get(
+        let wrapped: Option<String> = value.get(
             columns
                 .iter()
-                .position(|c| c.name() == "inner")
-                .context("inner column not found")?,
+                .position(|c| c.name() == "wrapped")
+                .context("wrapped column not found")?,
         );
         let shared: Option<String> = value.get(
             columns
@@ -486,7 +486,7 @@ impl TryFrom<&Row> for StructDescription {
             description,
             address_owned,
             object_owned,
-            inner,
+            wrapped,
             shared,
             immutable,
             warnings,

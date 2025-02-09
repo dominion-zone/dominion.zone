@@ -3,9 +3,12 @@ use clap::{Parser, Subcommand};
 mod commands;
 mod db;
 mod sui_client;
+mod prompts;
+mod ai;
 
 use anyhow::Result;
 use commands::*;
+
 
 #[derive(Parser)]
 #[command(name = "cli_tool")]
