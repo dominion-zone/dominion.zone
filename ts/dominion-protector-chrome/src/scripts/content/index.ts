@@ -9,13 +9,11 @@
     }
 
     if (event.data.checkTransaction) {
-      console.log('!!!!!!!Check Transaction', event.data.checkTransaction);
       chrome.runtime.sendMessage(
         {
           checkTransaction: event.data.checkTransaction,
         },
         response => {
-          console.log('!!!!!!!Response', response);
           window.postMessage({
             checkTransactionResponse: {
               ...response,

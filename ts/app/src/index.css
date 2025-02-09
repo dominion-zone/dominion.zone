@@ -42,7 +42,7 @@ a:hover {
   border-radius: 0.5rem;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   margin: 2rem;
-  padding: 1rem;
+  padding: 1.2rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -56,4 +56,40 @@ a:hover {
 
 a .card:hover {
   background-color: #f0d690;
+}
+
+.screenshot {
+  display: block;
+  max-width: 160px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-right: auto;
+  margin-left: auto;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.install-btn {
+  display: block;
+  width: 100%;
+  max-width: 300px;
+  background: #007bff;
+  color: #fff;
+  padding: 10px;
+  text-align: center;
+  font-size: 18px;
+  text-decoration: none;
+  border-radius: 5px;
+  margin: 20px 0;
+}
+.install-btn:hover {
+  background: #0056b3;
+}
+.warning {
+  color: red;
+  font-weight: bold;
+}
+
+li {
+  list-style-type: none;
 }

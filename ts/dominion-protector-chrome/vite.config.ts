@@ -4,6 +4,7 @@ import Pages from 'vite-plugin-pages';
 import { crx } from '@crxjs/vite-plugin'
 import manifest from './manifest.json'
 import typedCssModulesPlugin from "vite-plugin-typed-css-modules";
+import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [
@@ -20,6 +21,11 @@ export default defineConfig({
   },
   build: {
     target: 'esnext',
+    rollupOptions: {
+      input: {
+        index: resolve(__dirname, 'index.html'),
+      },
+    },
   },
   legacy: {
     skipWebSocketTokenCheck: true

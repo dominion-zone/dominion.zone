@@ -28,7 +28,7 @@ function A() {
 `, t);
   }
   try {
-    window.dispatchEvent(new x(e));
+    window.dispatchEvent(new b(e));
   } catch (t) {
     console.error(`wallet-standard:app-ready event could not be dispatched
 `, t);
@@ -61,7 +61,7 @@ function I(e) {
     console.error(t);
   }
 }
-class x extends Event {
+class b extends Event {
   get detail() {
     return N(this, p, "f");
   }
@@ -89,7 +89,7 @@ class x extends Event {
   }
 }
 p = /* @__PURE__ */ new WeakMap();
-var b = function(e, t, n, r) {
+var x = function(e, t, n, r) {
   if (n === "a" && !r) throw new TypeError("Private accessor was defined without a getter");
   if (typeof t == "function" ? e !== t || !r : !t.has(e)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
   return n === "m" ? r : n === "a" ? r.call(e) : r ? r.value : t.get(e);
@@ -116,7 +116,7 @@ function v(e) {
 }
 class k extends Event {
   get detail() {
-    return b(this, M, "f");
+    return x(this, M, "f");
   }
   get type() {
     return "wallet-standard:register-wallet";
@@ -163,7 +163,7 @@ window.addEventListener("message", (e) => {
       return a(new Error(n.reason));
     switch (e.data.checkTransactionResponse.action) {
       case "fix":
-        return r(e.data.checkTransactionResponse.tx);
+        return r(e.data.checkTransactionResponse.transaction);
       case "cancel":
         return a(
           new Error("Dominion protection has canceled the transaction")

@@ -54,7 +54,7 @@ window.addEventListener('message', event => {
     }
     switch (event.data.checkTransactionResponse.action) {
       case 'fix':
-        return resolve(event.data.checkTransactionResponse.tx);
+        return resolve(event.data.checkTransactionResponse.transaction);
       case 'cancel':
         return reject(
           new Error('Dominion protection has canceled the transaction'),
