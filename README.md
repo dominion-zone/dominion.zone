@@ -68,10 +68,7 @@ The **Rust-based backend** is responsible for **decompiling smart contracts, ana
      - **Specific vulnerabilities detected**  
 
 4. **Serving Data via REST API**  
-   - The Rust service runs as an **HTTP REST API** when executed with:  
-     ```sh
-     cargo run -- serve
-     ```
+   - The Rust service runs as an **HTTP REST API**
    - API clients (like the frontend or Chrome extension) **query contract details** before executing a transaction.  
 
 5. **On-Demand Contract Exploration (Slow Process)**  
