@@ -231,7 +231,13 @@ pub async fn generate(
     messages: &Vec<ChatMessage>,
     ai: &AI,
 ) -> Result<StructDescription> {
-    let mut messages = messages.clone();
+    let (description, warnings) = {
+        let mut messages = messages.clone();
+        let description = generate_description(structure_name, &mut messages, ai).await?;
+        let warnings = generate_warnings(structure_name, &mut messages, ai).await?;
+        (description, warnings)
+    };
+
     let Ownership {
         address_owned,
         object_owned,
@@ -239,9 +245,10 @@ pub async fn generate(
         shared,
         immutable,
         event,
-    } = generate_ownership(structure_name, &mut messages, ai).await?;
-    let description = generate_description(structure_name, &mut messages, ai).await?;
-    let warnings = generate_warnings(structure_name, &mut messages, ai).await?;
+    } = {
+        let mut messages = messages.clone();
+        generate_ownership(structure_name, &mut messages, ai).await?
+    };
 
     Ok(StructDescription {
         module,
