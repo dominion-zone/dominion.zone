@@ -7,15 +7,8 @@ pub mod objects;
 pub mod sources;
 
 pub async fn build_db() -> Result<Client> {
-    let password = env::var("DOMINION_PSWD")?;
-    let (db, connection) = tokio_postgres::connect(
-        &format!(
-            "postgresql://dominion:{}@dominion.zone:5432/dominion_protector",
-            password
-        ),
-        NoTls,
-    )
-    .await?;
+    let database_url = env::var("DATABASE_URL")?;
+    let (db, connection) = tokio_postgres::connect(&database_url, NoTls).await?;
     tokio::spawn(async move {
         if let Err(e) = connection.await {
             eprintln!("connection error: {}", e);
