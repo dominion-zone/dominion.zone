@@ -3,6 +3,7 @@ use std::str::FromStr;
 use anyhow::{Context, Result};
 use move_core_types::{account_address::AccountAddress, language_storage::ModuleId};
 use postgres_types::{FromSql, ToSql};
+use serde::{Deserialize, Serialize};
 use sui_sdk::types::Identifier;
 use tokio_postgres::{Client, Row, Transaction};
 
@@ -91,7 +92,7 @@ pub async fn create_description_tables_if_needed(client: &Client) -> Result<()> 
     Ok(())
 }
 
-#[derive(Debug, Clone, Copy, ToSql, FromSql)]
+#[derive(Debug, Clone, Copy, ToSql, FromSql, Serialize, Deserialize)]
 #[postgres(name = "security_level")]
 pub enum SecurityLevel {
     #[postgres(name = "Critical Risk")]
@@ -117,7 +118,7 @@ enum EntityKind {
     Created,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ModuleDescription {
     pub id: ModuleId,
     pub network: String,

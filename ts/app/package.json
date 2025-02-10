@@ -17,8 +17,9 @@
     "vite-plugin-typed-css-modules": "^0.3.0"
   },
   "dependencies": {
-    "@solidjs/router": "^0.15.1",
     "@dominion.zone/solid-sui": "workspace:*",
+    "@mysten/sui": "^1.21.1",
+    "@solidjs/router": "^0.15.1",
     "axios": "^1.7.9",
     "lucide-solid": "^0.471.0",
     "solid-js": "^1.9.3",

@@ -1,5 +1,6 @@
 import {
   Component,
+  createEffect,
   For,
   JSX,
   mergeProps,
@@ -50,6 +51,13 @@ const KnownPackageSelector: Component<KnownPackageSelectorProps> = props => {
     },
   });
 
+  createEffect((network) => {
+    if (network !== myProps.network) {
+      myProps.setPackageId(null);
+    }
+    return myProps.network;
+  }, myProps.network);
+
   return (
     <Listbox
       value={props.packageId}
@@ -58,7 +66,12 @@ const KnownPackageSelector: Component<KnownPackageSelectorProps> = props => {
     >
       <div class="listbox__container">
         <ListboxButton class="listbox__button">
-          <span class="listbox__button-text">{myProps.network}</span>
+          <input
+            type="text"
+            class="listbox__button-text"
+            value={myProps.packageId}
+            onChange={e => myProps.setPackageId(e.currentTarget.value)}
+          />
           <span class="listbox__button-icon">
             <ChevronsUpDown class="listbox__icon" aria-hidden="true" />
           </span>

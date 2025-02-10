@@ -23,7 +23,7 @@ use crate::{
         build_db,
         sources::{create_sources_tables_if_needed, read_source_from_db, ModuleSource},
     },
-    sui_client::{build_client, SuiClientWithNetwork},
+    sui_client::SuiClientWithNetwork,
 };
 
 #[derive(Args)]
@@ -33,7 +33,7 @@ pub struct DecompileCommand {
 
 impl DecompileCommand {
     pub async fn run(self) -> Result<()> {
-        let client = build_client().await?;
+        let client = SuiClientWithNetwork::with_default_network().await?;
         let mut db = build_db().await?;
         create_sources_tables_if_needed(&db).await?;
         let object_id = ObjectID::from_str(&self.id)?;

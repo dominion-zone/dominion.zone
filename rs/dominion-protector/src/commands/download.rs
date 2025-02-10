@@ -12,7 +12,7 @@ use crate::{
         build_db,
         objects::{create_objects_tables_if_needed, read_object_from_db, OwnerType},
     },
-    sui_client::{build_client, SuiClientWithNetwork},
+    sui_client::SuiClientWithNetwork,
 };
 use anyhow::{bail, Result};
 
@@ -30,7 +30,7 @@ enum DownloadType {
 
 impl DownloadCommand {
     pub async fn run(self) -> Result<()> {
-        let client = build_client().await?;
+        let client = SuiClientWithNetwork::with_default_network().await?;
         let mut db = build_db().await?;
         create_objects_tables_if_needed(&db).await?;
         match self.command {

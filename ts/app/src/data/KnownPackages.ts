@@ -6,7 +6,7 @@ export type KnownPackagesProps = {
 };
 
 export const getKnownPackages = query(async (props: KnownPackagesProps) => {
-  const r = await axios.get('http://api.dominion.zone/devnet/known_packages');
+  const r = await axios.get(`https://api.dominion.zone/${props.network}/known_packages`);
   return r.data as string[];
 }, 'knownPackages');
 

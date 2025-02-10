@@ -15,7 +15,7 @@ use crate::{
         sources::{read_source_from_db, ModuleSource},
     },
     prompts::Prompts,
-    sui_client::{build_client, SuiClientWithNetwork},
+    sui_client::SuiClientWithNetwork,
 };
 use anyhow::{bail, Context, Result};
 use clap::{Args, Subcommand};
@@ -46,7 +46,7 @@ enum DescribeType {
 
 impl DescribeCommand {
     pub async fn run(self) -> Result<()> {
-        let client = build_client().await?;
+        let client = SuiClientWithNetwork::with_default_network().await?;
         let mut db = build_db().await?;
         let ai = AI::new().await?;
 

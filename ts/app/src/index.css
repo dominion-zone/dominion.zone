@@ -94,10 +94,35 @@ li {
   list-style-type: none;
 }
 
+button {
+  display: inline-block;
+  width: fit-content;
+  padding: 2px;
+  margin: 1px 0;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  border: 1px solid #222;
+  border-radius: 2px;
+}
+
+.network-select {
+  display: inline-block;
+  width: 200px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.package-select {
+  display: inline-block;
+  width: 40rem;
+  margin-left: 10px;
+  margin-right: 10px;
+}
 
 .listbox {
   display: inline-block;
-  width: 200px;
 }
 
 .listbox__title {
@@ -126,6 +151,8 @@ li {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  width: 100%;
+  height: 100%;
 }
 
 .listbox__button-icon {
@@ -144,7 +171,7 @@ li {
   width: 100%;
   margin-top: 0.25rem;
   padding: 0.25rem 0;
-  background: #222;
+  background: #f0d690;
   border-radius: 0.25rem;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   max-height: 25rem;
@@ -216,4 +243,71 @@ li {
 
 .listbox__transition--leave-to {
   opacity: 0;
+}
+
+.tabs {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.tabs__container {
+  display: flex;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.tabs__list {
+  display: flex;
+  flex-direction: column;
+  background-color: #f3f4f6;
+  padding: 10px;
+  width: 150px;
+}
+
+.tabs__tab {
+  background: none;
+  border: none;
+  padding: 10px;
+  text-align: left;
+  cursor: pointer;
+  font-weight: bold;
+  color: #333;
+}
+
+.tabs__tab--selected {
+  background-color: #c8a2c8;
+  color: white;
+  border-radius: 5px;
+}
+
+.tabs__content {
+  padding: 10px;
+  background-color: #ebf0db;
+  flex-grow: 1;
+}
+
+.tabs__panel {
+  background: #f9fafb;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.tabs__title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.tabs__separator {
+  height: 2px;
+  background: #ef4444;
+  margin: 10px 0;
+}
+
+.tabs__description {
+  font-size: 14px;
+  color: #333;
 }

@@ -13,6 +13,9 @@ importers:
       '@dominion.zone/solid-sui':
         specifier: workspace:*
         version: link:../solid-sui
+      '@mysten/sui':
+        specifier: ^1.21.1
+        version: 1.21.1(typescript@5.7.3)
       '@solidjs/router':
         specifier: ^0.15.1
         version: 0.15.3(solid-js@1.9.4)

@@ -12,25 +12,44 @@ pub struct SuiClientWithNetwork {
     pub network: String,
 }
 
-pub async fn build_client() -> Result<SuiClientWithNetwork> {
-    let conf = sui_config_dir()?.join(SUI_CLIENT_CONFIG);
-    if !conf.exists() {
-        bail!("Wallet configuration file does not exist. Please create a wallet first.");
+impl SuiClientWithNetwork {
+    pub async fn new(network: &str) -> Result<Self> {
+        let conf = sui_config_dir()?.join(SUI_CLIENT_CONFIG);
+        if !conf.exists() {
+            bail!("Wallet configuration file does not exist. Please create a wallet first.");
+        }
+        let client_config: SuiClientConfig = PersistedConfig::read(&conf)?;
+        let client = client_config
+            .get_active_env()?
+            .create_rpc_client(Some(std::time::Duration::from_secs(60)), None)
+            .await?;
+        Ok(Self {
+            client,
+            network: network.to_owned(),
+        })
     }
-    let client_config: SuiClientConfig = PersistedConfig::read(&conf)?;
-    let network = client_config
-        .active_env
-        .as_ref()
-        .context("No active environment")?;
-    let client = client_config
-        .get_active_env()?
-        .create_rpc_client(Some(std::time::Duration::from_secs(60)), None)
-        .await?;
-    Ok(SuiClientWithNetwork {
-        client,
-        network: network.clone(),
-    })
+
+    pub async fn with_default_network() -> Result<Self> {
+        let conf = sui_config_dir()?.join(SUI_CLIENT_CONFIG);
+        if !conf.exists() {
+            bail!("Wallet configuration file does not exist. Please create a wallet first.");
+        }
+        let client_config: SuiClientConfig = PersistedConfig::read(&conf)?;
+        let network = client_config
+            .active_env
+            .as_ref()
+            .context("No active environment")?;
+        let client = client_config
+            .get_active_env()?
+            .create_rpc_client(Some(std::time::Duration::from_secs(60)), None)
+            .await?;
+        Ok(SuiClientWithNetwork {
+            client,
+            network: network.clone(),
+        })
+    }
 }
+
 
 /*
 pub fn retrieve_wallet() -> Result<WalletContext, anyhow::Error> {
