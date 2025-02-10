@@ -43,6 +43,69 @@ dominion.zone/
 
 ---
 
+## **How the Rust Analysis Service Works**  
+
+The **Rust-based backend** is responsible for **decompiling smart contracts, analyzing them using an LLM (via Atoma Network), storing the results in PostgreSQL, and serving them via a REST API**.
+
+### **Step-by-Step Breakdown**  
+
+1. **Decompiling Smart Contract Modules**  
+   - The service uses [Revela](https://github.com/verichains/revela) to **decompile contract modules into readable Rust code**.  
+   - Each **module is processed separately** to extract key logic.  
+
+2. **Feeding Each Module to LLM for Analysis**  
+   - The decompiled contract modules are **sent to Atoma Network's LLM**.  
+   - The service asks **structured questions** about:
+     - The contract’s **overall purpose**
+     - Potential **security vulnerabilities**
+     - **Hidden logic** that could lead to scams  
+
+3. **Collecting AI Responses in PostgreSQL**  
+   - Each module’s analysis is **stored in a PostgreSQL database**.  
+   - The answers include:
+     - **General contract behavior**
+     - **Security classification** (e.g., Critical Risk, High Risk, etc.)
+     - **Specific vulnerabilities detected**  
+
+4. **Serving Data via REST API**  
+   - The Rust service runs as an **HTTP REST API** when executed with:  
+     ```sh
+     cargo run -- serve
+     ```
+   - API clients (like the frontend or Chrome extension) **query contract details** before executing a transaction.  
+
+5. **On-Demand Contract Exploration (Slow Process)**  
+   - The API can be used to **explore new contracts dynamically**.  
+   - However, AI analysis **take time**, so it is recommended to **preprocess contracts before querying**.  
+
+---
+
+## **How ScamTest Works**  
+
+ScamTest is a **deceptive smart contract simulation** designed to show users how scams operate and how **Wallet Protector** prevents them.  
+
+### **Step-by-Step Breakdown**  
+
+1. **User clicks "Try" on scamtest.xyz**  
+   - This sends a request to the **ScamTest CLI service** (`scamtest-cli`).  
+
+2. **ScamTest CLI triggers a blockchain transaction**  
+   - The contract **creates a new slot** for the user, which is valid for **a few seconds**.  
+   - The slot is stored as a **SHA256 hash** of a random number.  
+
+3. **User receives the original number**  
+   - This number acts as the **key** to claim the slot.  
+   - The frontend **simulates the claim transaction** and shows **win tokens incoming**.  
+
+4. **User approves and submits the actual transaction**  
+   - However, by the time the transaction executes, the **slot expires**.  
+
+5. **Result: No win tokens granted**  
+   - The user checks the blockchain explorer and sees **nothing was received**.  
+   - The contract appeared fair **in the simulation**, but in reality, it **tricked the user** into believing they would receive tokens.  
+
+---
+
 ## **Installation & Setup**  
 
 ### **1. Clone the repository**  
