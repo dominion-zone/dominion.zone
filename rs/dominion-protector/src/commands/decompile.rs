@@ -35,7 +35,6 @@ impl DecompileCommand {
     pub async fn run(self) -> Result<()> {
         let client = SuiClientWithNetwork::with_default_network().await?;
         let mut db = build_db().await?;
-        create_sources_tables_if_needed(&db).await?;
         let object_id = ObjectID::from_str(&self.id)?;
         println!("Decompiling package with ID: {}", object_id);
         let package = get_or_download_object(DownloadObjectParams {
@@ -71,6 +70,7 @@ pub async fn decompile(
         db,
     }: DecompileParams<'_>,
 ) -> Result<BTreeMap<Identifier, ModuleSource>> {
+    create_sources_tables_if_needed(&db).await?;
     let mut modules = BTreeMap::<Identifier, ModuleSource>::new();
     let tx = db.transaction().await?;
     for (name, bytecode) in &package.module_map {
@@ -140,6 +140,7 @@ pub async fn get_or_decompile_module(
     client: &SuiClientWithNetwork,
     db: &mut Client,
 ) -> Result<ModuleSource> {
+    create_sources_tables_if_needed(&db).await?;
     let source = read_source_from_db(module_id.clone(), client.network.clone(), db).await?;
     if let Some(source) = source {
         Ok(source)

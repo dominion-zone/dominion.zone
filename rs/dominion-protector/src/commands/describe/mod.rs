@@ -55,7 +55,6 @@ impl DescribeCommand {
         let mut db = build_db().await?;
         let ai = AI::new().await?;
 
-        create_description_tables_if_needed(&mut db).await?;
         match self.command {
             DescribeType::Package { package_id } => {
                 println!("Describing package with ID: {}", package_id);

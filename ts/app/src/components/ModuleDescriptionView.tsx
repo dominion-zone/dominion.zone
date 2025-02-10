@@ -1,5 +1,7 @@
 import {Component, For, JSX, Show, splitProps, Suspense} from 'solid-js';
 import {ModuleDescription} from '../data/ModuleDescription';
+import {Tab, TabGroup, TabList, TabPanel} from 'terracotta';
+import StructDescriptionView from './StructDescriptionView';
 
 export type ModuleDescriptionProps = JSX.HTMLAttributes<HTMLElement> & {
   packageId: string;
@@ -27,31 +29,58 @@ const ModuleDescriptionView: Component<ModuleDescriptionProps> = props => {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <section class="card" {...sectionProps}>
-        <h2>Module: {myProps.module}</h2>
+        <h2>Module {myProps.module}: {info()?.security_level}</h2>
         <p>{info()?.description}</p>
-        <h3>Security Level: {info()?.security_level}</h3>
-        <h3>Warnings:</h3>
+        <h2>Warnings:</h2>
         <ul>
           <For each={info()?.warnings}>{warning => <li>⚠ {warning}</li>}</For>
         </ul>
-        <h3>Structs:</h3>
-        <ul>
-          <For each={info()?.structs}>{struct => <li><h4>{struct.struct_name}</h4>
-          <ul>
-            <li>Description: {struct.description}</li>
-            <Show when={struct.address_owned}><li>Address Owned: {struct.address_owned}</li></Show>
-            <Show when={struct.object_owned}><li>Object Owned: {struct.object_owned}</li></Show>
-            <Show when={struct.wrapped}><li>Wrapped: {struct.wrapped}</li></Show>
-            <Show when={struct.shared}><li>Shared: {struct.shared}</li></Show>
-            <Show when={struct.immutable}><li>Immutable: {struct.immutable}</li></Show>
-            <Show when={struct.event}><li>Event: {struct.event}</li></Show>
-            <h5>Warnings:</h5>
-            <ul>
-              <For each={struct.warnings}>{warning => <li>⚠ {warning}</li>}</For>
-              </ul>
-          </ul>
-          </li>}</For>
-        </ul>
+        <Show when={info()?.structs.length > 0}>
+          <h2>Structs:</h2>
+          <div class="tabs">
+            <TabGroup
+              defaultValue={info()?.structs?.[0]?.struct_name}
+              horizontal={false}
+              class="tabs__container"
+            >
+              {({isSelected, isActive}): JSX.Element => (
+                <>
+                  <TabList class="tabs__list">
+                    <For each={info()?.structs}>
+                      {(struct): JSX.Element => (
+                        <Tab
+                          value={struct.struct_name}
+                          classList={{
+                            tabs__tab: true,
+                            'tabs__tab--selected': isSelected(
+                              struct.struct_name,
+                            ),
+                          }}
+                        >
+                          {struct.struct_name}
+                        </Tab>
+                      )}
+                    </For>
+                  </TabList>
+                  <div class="tabs__content">
+                    <For each={info()?.structs}>
+                      {(struct): JSX.Element => (
+                        <TabPanel
+                          value={struct.struct_name}
+                          classList={{
+                            tabs__panel: true,
+                          }}
+                        >
+                          <StructDescriptionView struct={struct} />
+                        </TabPanel>
+                      )}
+                    </For>
+                  </div>
+                </>
+              )}
+            </TabGroup>
+          </div>
+        </Show>
       </section>
     </Suspense>
   );

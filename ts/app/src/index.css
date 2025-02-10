@@ -281,14 +281,13 @@ button {
 }
 
 .tabs__content {
-  padding: 10px;
   background-color: #ebf0db;
   flex-grow: 1;
 }
 
 .tabs__panel {
-  background: #f9fafb;
-  padding: 15px;
+  background: #c9d5df;
+  padding: 2px;
   border-radius: 5px;
   margin-bottom: 10px;
 }

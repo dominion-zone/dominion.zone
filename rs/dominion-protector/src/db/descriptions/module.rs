@@ -92,8 +92,8 @@ impl ModuleDescription {
                 security_level  security_level NOT NULL DEFAULT 'Unknown / Unassessed',
                 warnings        TEXT[] NOT NULL DEFAULT '{}',
                 PRIMARY KEY(package_id, network, module),
-                FOREIGN KEY(package_id, network) REFERENCES objects(id, network),
-                FOREIGN KEY(package_id, network, module) REFERENCES package_modules(package_id, network, name)
+                FOREIGN KEY(package_id, network) REFERENCES objects(id, network) ON DELETE CASCADE,
+                FOREIGN KEY(package_id, network, module) REFERENCES package_modules(package_id, network, name) ON DELETE CASCADE
             );
         ").await?;
         Ok(())

@@ -45,7 +45,7 @@ pub async fn create_objects_tables_if_needed(client: &Client) -> Result<()> {
             name            TEXT NOT NULL,
             bytecode        BYTEA NOT NULL,
             PRIMARY KEY(package_id, network, name),
-            FOREIGN KEY(package_id, network) REFERENCES objects(id, network)
+            FOREIGN KEY(package_id, network) REFERENCES objects(id, network) ON DELETE CASCADE
         );
         CREATE TABLE IF NOT EXISTS package_type_origins (
             package_id      CHAR(66) NOT NULL,
@@ -54,8 +54,8 @@ pub async fn create_objects_tables_if_needed(client: &Client) -> Result<()> {
             datatype_name   TEXT NOT NULL,
             origin          CHAR(66) NOT NULL,
             PRIMARY KEY(package_id, network, module_name, datatype_name),
-            FOREIGN KEY(package_id, network) REFERENCES objects(id, network),
-            FOREIGN KEY(package_id, network, module_name) REFERENCES package_modules(package_id, network, name)
+            FOREIGN KEY(package_id, network) REFERENCES objects(id, network) ON DELETE CASCADE,
+            FOREIGN KEY(package_id, network, module_name) REFERENCES package_modules(package_id, network, name) ON DELETE CASCADE
         );
     ").await?;
     Ok(())

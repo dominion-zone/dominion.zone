@@ -90,7 +90,7 @@ structure:
       - **All ownership classifications requiring external access must be excluded in such cases.**
       - **If `{struct_name}` has `store` ability and is returned from a function, but its ownership is not explicitly determined within the module, mark applicable ownership kinds as `"possible"`.**
       - **`shared` and `immutable` are completely separate states. An object that is shared (`0x2::transfer::share_object`) can never be frozen (`0x2::transfer::freeze_object`).**     
-
+  
     📌 **Ownership Classification Rules:**  
       - **`address_owned`** → The structure **may be owned by a user** if:  
         - It has **key** ability.  
@@ -123,17 +123,6 @@ structure:
     - If **there is only one way to set ownership, use `"always"`** instead of conditions.  
 
     📌 **Return a valid JSON object without field present for NO cases.**  
-
-    **Format Example (Valid JSON Output):**
-    {
-      "address_owned": "using function `create`",
-      "wrapped": "unsing function `new_wrapped` if the second parameter is greater than 5",
-      "obejct_owned": "possible"
-    }
-    or
-    {
-      "event": "always"
-    }
   warnings: |
     Provide a list of security warnings or concerns related to the structure `{struct_name}`.  
       - Each warning must be a **string** describing a potential risk, limitation, or security issue.  

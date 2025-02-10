@@ -2,11 +2,11 @@ const config = {
   devnet: {
     scamtest: {
       package:
-        '0x71da48b45bfaec9cca02bf57f4d7a1cb56ba9adb9e2e0469f9410e22970981cd',
+        '0xf959136f4377f01787b5b29366e407b318fba2e600c6998bdea473187cfe8a07',
       scamtest:
-        '0x0894815914d378ef66374295b432177ac78e3b56a8342c4f7440ece10e1b766c',
+        '0x38b5796380484fa887b4a163a83dc3fa9769aa220a4e132d5774e492677e7b2d',
       tstCap:
-        '0x0c29ef781c04df05002b7c62370d153211e21422be4f4fe78462e41ee4196886',
+        '0x5f412a59d2e1af1ab2cce570e649a447c5dbc6bc5672742b74134fb9df7516c9',
     },
     slotUrl: 'https://api.scamtest.xyz/slot',
   },

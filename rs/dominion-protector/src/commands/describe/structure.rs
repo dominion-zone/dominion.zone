@@ -76,23 +76,27 @@ async fn generate_ownership(
                     "properties": {
                         "address_owned": {
                             "type": "string",
-                            "description": "Indicates if the struct may be owned by a user. 'always' means it is always user-owned, null means it is not."
+                            "description": "Indicates if the struct may be owned by a user. 'always' means it is always user-owned, undefined means never."
                         },
                         "object_owned": {
                             "type": "string",
-                            "description": "Indicates if the struct may be owned by another object. 'always' means it is always object-owned, null means it is not."
+                            "description": "Indicates if the struct may be owned by another object. 'always' means it is always object-owned, undefined means never."
                         },
                         "wrapped": {
                             "type": "string",
-                            "description": "Indicates if the struct may be wrapped inside another struct. Possible values: 'always', specific conditions (as a string), or null if not applicable."
+                            "description": "Indicates if the struct may be wrapped inside another struct. Possible values: 'always', specific conditions (as a string), or undefined if not applicable."
                         },
                         "shared": {
                             "type": "string",
-                            "description": "Indicates if the struct may be shared across multiple users. 'always' means it is always shared, null means it is not."
+                            "description": "Indicates if the struct may be shared across multiple users. 'always' means it is always shared, undefined means never."
                         },
                         "immutable": {
                             "type": "string",
-                            "description": "Indicates if the struct is immutable. 'always' means it is always immutable, null means it is not."
+                            "description": "Indicates if the struct is immutable. 'always' means it is always immutable, undefined means never."
+                        },
+                        "event": {
+                            "type": "string",
+                            "description": "Indicates if the struct is an event. 'always' means it is always an event, undefined means never."
                         }
                     },
                     "additionalProperties": false,
@@ -139,30 +143,10 @@ async fn generate_description(
         .response_format(ChatCompletionResponseFormat::Text)
         .build()?;
 
-    let result = ai.chat().create(parameters).await?;
-    let mut description: Option<String> = None;
-    for choice in result.choices {
-        if let ChatMessage::Assistant { content, .. } = &choice.message {
-            let response: String = match content.as_ref() {
-                Some(ChatMessageContent::Text(text)) => text.clone(),
-                Some(ChatMessageContent::ContentPart(_)) => continue,
-                Some(ChatMessageContent::None) => continue,
-                None => continue,
-            };
-            println!("Response: {:?}", choice);
-            let response = if response.starts_with("<think>") {
-                let end = response.find("</think>").context("No </think> tag")?;
-                response[end + 8..].to_string()
-            } else {
-                response
-            };
-            description.replace(response);
-            messages.push(choice.message);
-            break;
-        }
-    }
+    let (description, message) = ai.text_request(parameters).await?;
+    messages.push(message);
 
-    Ok(description.context("Error getting description")?)
+    Ok(description)
 }
 
 async fn generate_warnings(

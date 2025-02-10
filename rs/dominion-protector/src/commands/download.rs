@@ -32,7 +32,6 @@ impl DownloadCommand {
     pub async fn run(self) -> Result<()> {
         let client = SuiClientWithNetwork::with_default_network().await?;
         let mut db = build_db().await?;
-        create_objects_tables_if_needed(&db).await?;
         match self.command {
             DownloadType::Object { id } => {
                 // let worker = Uuid::new_v4();
@@ -80,6 +79,7 @@ pub async fn download_object(
         db,
     }: DownloadObjectParams<'_>,
 ) -> Result<SuiObjectData> {
+    create_objects_tables_if_needed(&db).await?;
     // let inner = async {
     let object = client
         .client
@@ -222,6 +222,7 @@ pub async fn download_object(
 }
 
 pub async fn get_or_download_object(mut params: DownloadObjectParams<'_>) -> Result<SuiObjectData> {
+    create_objects_tables_if_needed(&mut params.db).await?;
     let object = read_object_from_db(
         params.object_id,
         params.client.network.clone(),

@@ -9,8 +9,8 @@ use crate::{
     db::{
         build_db,
         descriptions::{
-            create_description_tables_if_needed, FullModuleDescription, ModuleDescription,
-            SecurityLevel,
+            create_description_tables_if_needed, security_level, FullModuleDescription,
+            ModuleDescription, SecurityLevel,
         },
         sources::{read_source_from_db, ModuleSource},
     },
@@ -43,30 +43,10 @@ async fn generate_description(messages: &mut Vec<ChatMessage>, ai: &AI) -> Resul
         .response_format(ChatCompletionResponseFormat::Text)
         .build()?;
 
-    let result = ai.chat().create(parameters).await?;
-    let mut description: Option<String> = None;
-    for choice in result.choices {
-        if let ChatMessage::Assistant { content, .. } = &choice.message {
-            let response: String = match content.as_ref() {
-                Some(ChatMessageContent::Text(text)) => text.clone(),
-                Some(ChatMessageContent::ContentPart(_)) => continue,
-                Some(ChatMessageContent::None) => continue,
-                None => continue,
-            };
-            println!("Response: {:?}", choice);
-            let response = if response.starts_with("<think>") {
-                let end = response.find("</think>").context("No </think> tag")?;
-                response[end + 8..].to_string()
-            } else {
-                response
-            };
-            description.replace(response);
-            messages.push(choice.message);
-            break;
-        }
-    }
+    let (description, message) = ai.text_request(parameters).await?;
+    messages.push(message);
 
-    Ok(description.context("Error getting description")?)
+    Ok(description)
 }
 
 async fn generate_warnings(messages: &mut Vec<ChatMessage>, ai: &AI) -> Result<Vec<String>> {
@@ -135,40 +115,24 @@ async fn generate_security_level(
         .response_format(ChatCompletionResponseFormat::Text)
         .build()?;
 
-    let result = ai.chat().create(parameters).await?;
-    if let ChatMessage::Assistant { content, .. } = &result.choices[0].message {
-        let response: String = match content.as_ref() {
-            Some(ChatMessageContent::Text(text)) => text.clone(),
-            _ => bail!("Invalid response"),
-        };
-        println!("Response: {:?}", result.choices[0]);
-        let response = if response.starts_with("<think>") {
-            let end = response.find("</think>").context("No </think> tag")?;
-            response[end + 8..].to_string()
-        } else {
-            response
-        };
-        let security_level = if response.contains("Critical") {
-            SecurityLevel::CriticalRisk
-        } else if response.contains("High") {
-            SecurityLevel::HighRisk
-        } else if response.contains("Medium") {
-            SecurityLevel::MediumRisk
-        } else if response.contains("Low") {
-            SecurityLevel::LowRisk
-        } else if response.contains("Best") {
-            SecurityLevel::BestPracticesCompliant
-        } else if response.contains("Unknown") {
-            SecurityLevel::UnknownUnassessed
-        } else {
-            bail!("Invalid response");
-        };
-        messages.push(result.choices[0].message.clone());
-
-        Ok(security_level)
+    let (response, message) = ai.text_request(parameters).await?;
+    let security_level = if response.contains("Critical") {
+        SecurityLevel::CriticalRisk
+    } else if response.contains("High") {
+        SecurityLevel::HighRisk
+    } else if response.contains("Medium") {
+        SecurityLevel::MediumRisk
+    } else if response.contains("Low") {
+        SecurityLevel::LowRisk
+    } else if response.contains("Best") {
+        SecurityLevel::BestPracticesCompliant
+    } else if response.contains("Unknown") {
+        SecurityLevel::UnknownUnassessed
     } else {
         bail!("Invalid response");
-    }
+    };
+    messages.push(message);
+    Ok(security_level)
 }
 
 pub async fn generate(

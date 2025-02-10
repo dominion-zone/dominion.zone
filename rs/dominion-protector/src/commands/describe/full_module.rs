@@ -42,6 +42,8 @@ pub async fn describe(
     db: &mut Client,
     ai: &AI,
 ) -> Result<FullModuleDescription> {
+    create_description_tables_if_needed(db).await?;
+
     Box::pin(async move {
         let mut input_message = String::new();
         for dependency in &module.dependencies {
@@ -129,6 +131,7 @@ pub async fn get_or_describe(
     client: &SuiClientWithNetwork,
     ai: &AI,
 ) -> Result<FullModuleDescription> {
+    create_description_tables_if_needed(db).await?;
     let module =
         FullModuleDescription::read_from_db(module_id.clone(), client.network.clone(), db).await?;
     if let Some(module) = module {

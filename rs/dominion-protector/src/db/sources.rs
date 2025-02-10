@@ -14,8 +14,8 @@ pub async fn create_sources_tables_if_needed(client: &Client) -> Result<()> {
             kind            VARCHAR(20) NOT NULL,
             dependencies    TEXT[] NOT NULL,
             PRIMARY KEY(package_id, network, name),
-            FOREIGN KEY(package_id, network) REFERENCES objects(id, network),
-            FOREIGN KEY(package_id, network, name) REFERENCES package_modules(package_id, network, name)
+            FOREIGN KEY(package_id, network) REFERENCES objects(id, network) ON DELETE CASCADE,
+            FOREIGN KEY(package_id, network, name) REFERENCES package_modules(package_id, network, name) ON DELETE CASCADE
         );
     ").await?;
     Ok(())
