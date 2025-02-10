@@ -6,12 +6,20 @@ use tokio::fs;
 pub struct Prompts {
     pub developer: String,
     pub module: ModulePrompts,
+    pub structure: StructPrompts,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ModulePrompts {
     pub description: String,
     pub security_level: String,
+    pub warnings: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StructPrompts {
+    pub description: String,
+    pub ownership: String,
     pub warnings: String,
 }
 

@@ -1,6 +1,19 @@
 import {createAsync, query} from '@solidjs/router';
 import axios from 'axios';
 
+export type StructInfo = {
+    network: string,
+    struct_name: string,
+    description: string,
+    address_owned?: string,
+    object_owned?: string,
+    wrapped?: string,
+    shared?: string,
+    immutable?: string,
+    event?: string,
+    warnings: string[]
+};
+
 export type ModuleInfo = {
   packageId: string;
   network: string;
@@ -8,6 +21,7 @@ export type ModuleInfo = {
   description: string;
   security_level: string;
   warnings: string[];
+  structs: StructInfo[];
 };
 
 export type ModuleDescriptionProps = {

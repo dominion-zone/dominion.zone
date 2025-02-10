@@ -1,0 +1,192 @@
+use std::str::FromStr;
+
+use crate::{
+    ai::AI,
+    commands::{
+        decompile::{decompile, get_or_decompile_module, DecompileParams},
+        download::{download_object, get_or_download_object, DownloadObjectParams},
+    },
+    db::{
+        build_db,
+        descriptions::{
+            create_description_tables_if_needed, FullModuleDescription, ModuleDescription,
+            SecurityLevel,
+        },
+        sources::{read_source_from_db, ModuleSource},
+    },
+    prompts::Prompts,
+    sui_client::SuiClientWithNetwork,
+};
+use anyhow::{bail, Context, Result};
+use clap::{Args, Subcommand};
+use move_core_types::{account_address::AccountAddress, language_storage::ModuleId};
+use openai_dive::v1::resources::chat::{
+    ChatCompletionParametersBuilder, ChatCompletionResponseFormat, ChatMessage, ChatMessageContent,
+    JsonSchema, JsonSchemaBuilder,
+};
+use serde_json::json;
+use sui_sdk::{
+    rpc_types::SuiRawData,
+    types::{base_types::ObjectID, Identifier},
+};
+use tokio_postgres::Client;
+
+async fn generate_description(messages: &mut Vec<ChatMessage>, ai: &AI) -> Result<String> {
+    messages.push(ChatMessage::User {
+        content: ChatMessageContent::Text(ai.prompts.module.description.clone()),
+        name: None,
+    });
+
+    let parameters = ChatCompletionParametersBuilder::default()
+        .model(ai.model.clone())
+        .messages(messages.as_slice())
+        .response_format(ChatCompletionResponseFormat::Text)
+        .build()?;
+
+    let result = ai.chat().create(parameters).await?;
+    let mut description: Option<String> = None;
+    for choice in result.choices {
+        if let ChatMessage::Assistant { content, .. } = &choice.message {
+            let response: String = match content.as_ref() {
+                Some(ChatMessageContent::Text(text)) => text.clone(),
+                Some(ChatMessageContent::ContentPart(_)) => continue,
+                Some(ChatMessageContent::None) => continue,
+                None => continue,
+            };
+            println!("Response: {:?}", choice);
+            let response = if response.starts_with("<think>") {
+                let end = response.find("</think>").context("No </think> tag")?;
+                response[end + 8..].to_string()
+            } else {
+                response
+            };
+            description.replace(response);
+            messages.push(choice.message);
+            break;
+        }
+    }
+
+    Ok(description.context("Error getting description")?)
+}
+
+async fn generate_warnings(messages: &mut Vec<ChatMessage>, ai: &AI) -> Result<Vec<String>> {
+    messages.push(ChatMessage::User {
+        content: ChatMessageContent::Text(ai.prompts.module.warnings.clone()),
+        name: None,
+    });
+
+    let parameters = ChatCompletionParametersBuilder::default()
+        .model(ai.model.clone())
+        .messages(messages.as_slice())
+        .response_format(ChatCompletionResponseFormat::JsonSchema(
+            JsonSchemaBuilder::default()
+                .description("Array of strings")
+                .name("String[]")
+                .schema(json!({
+                  "$schema": "https://json-schema.org/draft/2020-12/schema",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "example": ["A", "B"]
+                }))
+                .strict(true)
+                .build()?,
+        ))
+        .build()?;
+
+    let result = ai.chat().create(parameters).await?;
+    let mut wranings: Option<Vec<String>> = None;
+
+    for choice in result.choices {
+        if let ChatMessage::Assistant { content, .. } = &choice.message {
+            let response: String = match content.as_ref() {
+                Some(ChatMessageContent::Text(text)) => text.clone(),
+                Some(ChatMessageContent::ContentPart(_)) => continue,
+                Some(ChatMessageContent::None) => continue,
+                None => continue,
+            };
+            println!("Response: {:?}", choice);
+            let result = serde_json::from_str(&response);
+            if let Ok(result) = result {
+                wranings.replace(result);
+                messages.push(choice.message);
+                break;
+            }
+        }
+    }
+
+    Ok(wranings.context("Error getting warnings")?)
+}
+
+async fn generate_security_level(
+    messages: &mut Vec<ChatMessage>,
+    ai: &AI,
+) -> Result<SecurityLevel> {
+    println!("Security level");
+    messages.push(ChatMessage::User {
+        content: ChatMessageContent::Text(ai.prompts.module.security_level.clone()),
+        name: None,
+    });
+
+    let parameters = ChatCompletionParametersBuilder::default()
+        .model(ai.model.clone())
+        .messages(messages.as_slice())
+        .response_format(ChatCompletionResponseFormat::Text)
+        .build()?;
+
+    let result = ai.chat().create(parameters).await?;
+    if let ChatMessage::Assistant { content, .. } = &result.choices[0].message {
+        let response: String = match content.as_ref() {
+            Some(ChatMessageContent::Text(text)) => text.clone(),
+            _ => bail!("Invalid response"),
+        };
+        println!("Response: {:?}", result.choices[0]);
+        let response = if response.starts_with("<think>") {
+            let end = response.find("</think>").context("No </think> tag")?;
+            response[end + 8..].to_string()
+        } else {
+            response
+        };
+        let security_level = if response.contains("Critical") {
+            SecurityLevel::CriticalRisk
+        } else if response.contains("High") {
+            SecurityLevel::HighRisk
+        } else if response.contains("Medium") {
+            SecurityLevel::MediumRisk
+        } else if response.contains("Low") {
+            SecurityLevel::LowRisk
+        } else if response.contains("Best") {
+            SecurityLevel::BestPracticesCompliant
+        } else if response.contains("Unknown") {
+            SecurityLevel::UnknownUnassessed
+        } else {
+            bail!("Invalid response");
+        };
+        messages.push(result.choices[0].message.clone());
+
+        Ok(security_level)
+    } else {
+        bail!("Invalid response");
+    }
+}
+
+pub async fn generate(
+    id: ModuleId,
+    network: String,
+    messages: &mut Vec<ChatMessage>,
+    ai: &AI,
+) -> Result<ModuleDescription> {
+    // TODO: FullModuleDescription
+    let description = generate_description(messages, ai).await?;
+    let warnings = generate_warnings(messages, ai).await?;
+    let security_level = generate_security_level(messages, ai).await?;
+
+    Ok(ModuleDescription {
+        id,
+        network,
+        description,
+        warnings,
+        security_level,
+    })
+}

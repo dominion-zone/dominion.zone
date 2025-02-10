@@ -47,16 +47,21 @@ module:
     Provide a concise and meaningful description for the module.  
       - The description should summarize the module's purpose and functionality.  
       - Keep the description clear and informative.  
-      - Avoid unnecessary technical details unless they are crucial for understanding the module.  
+      - Avoid unnecessary technical details unless they are crucial for understanding the module. 
+    
+    ❗ **Return only a plain text string, without quotes, JSON formatting, or any additional text.**  
+    ❗ **Do not include explanations, reasoning, or any `<think>...</think>` tags.** 
   security_level: |
     Select the appropriate security level for the module based on its risk profile.  
-    - Choose one of the following values, exactly as written (a single string without quotes):  
-      - Critical Risk
-      - High Risk
-      - Medium Risk 
-      - Low Risk
-      - Best Practices Compliant 
-      - Unknown / Unassessed
+    - Choose one of the following values **exactly as written**:  
+      - Critical Risk  
+      - High Risk  
+      - Medium Risk  
+      - Low Risk  
+      - Best Practices Compliant  
+      - Unknown / Unassessed  
+
+    ❗ **Return only one of these values as a plain text string, without quotes, JSON formatting, or any additional text.**  
   warnings: |
     Provide a list of security warnings or concerns related to the module.  
       - Each warning must be a **string** describing a potential risk, limitation, or security issue.  
@@ -64,4 +69,76 @@ module:
       - If there are no known warnings, return an **empty list** (`[]`).  
       - The response **must be a valid JSON array of strings** (`["warning1", "warning2", ...]`).  
 
-    ❗ **Do not return null, nested objects, or non-string values.**  
+    ❗ **Do not return null, nested objects, or non-string values.**
+structure:
+  description: |
+    Provide a concise and meaningful description for the structure `{struct_name}`.  
+      - The description should summarize the **purpose and functionality** of the structure.  
+      - Keep the description clear and informative.  
+      - Avoid unnecessary technical details unless they are crucial for understanding its role.  
+    
+    ❗ **Return only a plain text string, without quotes, JSON formatting, or any additional text.**  
+    ❗ **Do not include explanations, reasoning, or any `<think>...</think>` tags.** 
+  ownership: |
+    Analyze the ownership properties of the **entire structure** `{struct_name}` based on its usage in the provided code.  
+
+    📌 **Follow these strict evaluation rules:**  
+      - Do **not** analyze individual fields; only consider the ownership of `{struct_name}` as a whole.  
+      - Determine ownership based on how instances of `{struct_name}` are used in function calls, returns, and module logic.
+      - **Do not include ownership fields that are impossible in the response (omit them completely instead of explaining why they are not possible).**  
+      - **If `{struct_name}` lacks `store` ability and is not involved in calls to `0x2::transfer::transfer`, `0x2::transfer::share_object`, or `0x2::transfer::freeze_object`, it cannot be freely transferred, shared, or frozen outside the module.**  
+      - **All ownership classifications requiring external access must be excluded in such cases.**
+      - **If `{struct_name}` has `store` ability and is returned from a function, but its ownership is not explicitly determined within the module, mark applicable ownership kinds as `"possible"`.**
+      - **`shared` and `immutable` are completely separate states. An object that is shared (`0x2::transfer::share_object`) can never be frozen (`0x2::transfer::freeze_object`).**     
+
+    📌 **Ownership Classification Rules:**  
+      - **`address_owned`** → The structure **may be owned by a user** if:  
+        - It has **key** ability.  
+        - It has **store** ability and **returned from a non-private function** OR  
+        - It is **transferred using `0x2::transfer::transfer` or `0x2::transfer::public_transfer`** where the sender is the context sender.  
+
+      - **`object_owned`** → The structure **may be owned by an object** if:  
+        - It meets the conditions for `address_owned`, but instead of transferring to a user, it is transferred to an **object ID**.  
+        - If **ownership is unclear (can be both user and object owned), mark both fields**.  
+
+      - **`wrapped`** → The structure **is wrapped inside another structure** if:  
+        - It has **store** ability (but may lack key ability).  
+        - It is **returned from a non-private function** OR  
+        - It is **directly used in constructing another struct**.  
+
+      - **`shared`** → The structure **is shared across multiple users** if:  
+        - It has **key** ability.  
+        - It is **shared via `0x2::transfer::share_object` or `0x2::transfer::public_share_object`** OR  
+        - It has **store** ability and is **returned from a non-private function**.  
+
+      - **`immutable`** → The structure **becomes immutable** if:  
+        - It meets the `shared` conditions **but is frozen instead of shared** using  
+          `0x2::transfer::freeze_object` or `0x2::transfer::public_freeze_object`. 
+
+      - **`event`** → The structure **is classified as an event** if:  
+        - It has **copy** and **drop** abilities.  
+        - It is **emitted using `0x2::event::emit`** in the module code.  
+        - ❗ **This classification is determined entirely within the module and does not depend on external calls.**  
+
+    - If **there is only one way to set ownership, use `"always"`** instead of conditions.  
+
+    📌 **Return a valid JSON object without field present for NO cases.**  
+
+    **Format Example (Valid JSON Output):**
+    {
+      "address_owned": "using function `create`",
+      "wrapped": "unsing function `new_wrapped` if the second parameter is greater than 5",
+      "obejct_owned": "possible"
+    }
+    or
+    {
+      "event": "always"
+    }
+  warnings: |
+    Provide a list of security warnings or concerns related to the structure `{struct_name}`.  
+      - Each warning must be a **string** describing a potential risk, limitation, or security issue.  
+      - Use **plain language** to ensure clarity.  
+      - If there are no known warnings, return an **empty list** (`[]`).  
+      - The response **must be a valid JSON array of strings** (`["warning1", "warning2", ...]`).  
+
+    ❗ **Do not return null, nested objects, or non-string values.**
