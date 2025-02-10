@@ -6,7 +6,7 @@ export type ModuleInfo = {
   network: string;
   module: string;
   description: string;
-  securityLevel: string;
+  security_level: string;
   warnings: string[];
 };
 

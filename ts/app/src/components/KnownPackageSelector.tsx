@@ -69,7 +69,7 @@ const KnownPackageSelector: Component<KnownPackageSelectorProps> = props => {
           <input
             type="text"
             class="listbox__button-text"
-            value={myProps.packageId}
+            value={myProps.packageId ?? ''}
             onChange={e => myProps.setPackageId(e.currentTarget.value)}
           />
           <span class="listbox__button-icon">

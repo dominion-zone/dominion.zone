@@ -1,10 +1,10 @@
 use clap::{Parser, Subcommand};
 
-mod commands;
-mod db;
-mod sui_client;
-mod prompts;
-mod ai;
+pub mod commands;
+pub mod db;
+pub mod sui_client;
+pub mod prompts;
+pub mod ai;
 
 use anyhow::Result;
 use commands::*;

@@ -11,6 +11,7 @@ import {
 import {SuiObject} from '../data/SuiObject';
 import {Tab, TabGroup, TabList, TabPanel} from 'terracotta';
 import ModuleDescriptionView from './ModuleDescriptionView';
+import { formatAddress } from '@mysten/sui/utils';
 
 export type PackageDescriptionProps = JSX.HTMLAttributes<HTMLElement> & {
   packageId: string;
@@ -40,7 +41,7 @@ const PackageDescriptionView: Component<PackageDescriptionProps> = props => {
     <Show when={object()?.data?.bcs?.dataType === 'package'}>
       <section class="card" {...sectionProps}>
         <h2>
-          Package: {myProps.packageId} ({myProps.network})
+          Package: <a href={`https://suiscan.xyz/${myProps.network}/object/${myProps.packageId}`}>{formatAddress(myProps.packageId)}</a> ({myProps.network})
         </h2>
 
         <div class="tabs">

@@ -248,7 +248,6 @@ button {
 .tabs {
   display: flex;
   justify-content: center;
-  width: 100%;
 }
 
 .tabs__container {
@@ -256,7 +255,6 @@ button {
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   overflow: hidden;
-  width: 100%;
 }
 
 .tabs__list {
@@ -264,7 +262,6 @@ button {
   flex-direction: column;
   background-color: #f3f4f6;
   padding: 10px;
-  width: 150px;
 }
 
 .tabs__tab {
