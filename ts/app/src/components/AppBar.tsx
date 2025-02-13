@@ -24,7 +24,7 @@ const AppBar = () => {
           }}
         >
           <a
-            href="https://www.youtube.com/@DominionProtector"
+            href="https://youtu.be/BfON552tb2I"
             class={styles.brandIcon}
             target="_blank"
             rel="noopener noreferrer"
