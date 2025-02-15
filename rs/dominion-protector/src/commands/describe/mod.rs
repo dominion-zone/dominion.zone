@@ -4,36 +4,23 @@ use crate::{
     ai::AI,
     commands::{
         decompile::{decompile, get_or_decompile_module, DecompileParams},
-        download::{download_object, get_or_download_object, DownloadObjectParams},
+        download::get_or_download_object,
     },
-    db::{
-        build_db,
-        descriptions::{
-            create_description_tables_if_needed, FullModuleDescription, ModuleDescription,
-            SecurityLevel,
-        },
-        sources::{read_source_from_db, ModuleSource},
-    },
-    prompts::Prompts,
+    db::{build_db, sources::read_source_from_db},
     sui_client::SuiClientWithNetwork,
 };
 use anyhow::{bail, Context, Result};
 use clap::{Args, Subcommand};
 use move_binary_format::CompiledModule;
-use move_core_types::{account_address::AccountAddress, language_storage::ModuleId};
-use openai_dive::v1::resources::chat::{
-    ChatCompletionParametersBuilder, ChatCompletionResponseFormat, ChatMessage, ChatMessageContent,
-    JsonSchema, JsonSchemaBuilder,
-};
-use serde_json::json;
+use move_core_types::language_storage::ModuleId;
+
 use sui_sdk::{
     rpc_types::SuiRawData,
     types::{base_types::ObjectID, Identifier},
 };
-use tokio_postgres::Client;
 
-pub mod module;
 pub mod full_module;
+pub mod module;
 pub mod structure;
 
 #[derive(Args)]
@@ -59,12 +46,7 @@ impl DescribeCommand {
             DescribeType::Package { package_id } => {
                 println!("Describing package with ID: {}", package_id);
                 let object_id = ObjectID::from_str(&package_id)?;
-                let package = get_or_download_object(DownloadObjectParams {
-                    object_id,
-                    client: &client,
-                    db: &mut db,
-                })
-                .await?;
+                let package = get_or_download_object(object_id, &client, &mut db).await?;
                 if let SuiRawData::Package(package) = package.bcs.unwrap() {
                     for (name, bytecode) in &package.module_map {
                         let compiled = CompiledModule::deserialize_with_defaults(&bytecode)?;
@@ -97,11 +79,11 @@ impl DescribeCommand {
             DescribeType::Module { full_name } => {
                 let module_id = ModuleId::from_str(&full_name)?;
                 println!("Describing module: {}", &module_id);
-                let package = get_or_download_object(DownloadObjectParams {
-                    object_id: ObjectID::from_address(module_id.address().clone()),
-                    client: &client,
-                    db: &mut db,
-                })
+                let package = get_or_download_object(
+                    ObjectID::from_address(module_id.address().clone()),
+                    &client,
+                    &mut db,
+                )
                 .await?;
                 if let SuiRawData::Package(package) = package.bcs.unwrap() {
                     let compiled = CompiledModule::deserialize_with_defaults(

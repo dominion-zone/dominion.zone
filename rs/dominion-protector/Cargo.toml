@@ -11,6 +11,7 @@ sui_config = { git = "https://github.com/mystenlabs/sui", package = "sui-config"
 sui_keys = { git = "https://github.com/mystenlabs/sui", package = "sui-keys"}
 move_binary_format = { git = "https://github.com/mystenlabs/sui", package = "move-binary-format"}
 move_core_types = { git = "https://github.com/mystenlabs/sui", package = "move-core-types"}
+move_model= { git = "https://github.com/mystenlabs/sui", package = "move-model-2"}
 clap.workspace = true
 tokio-postgres = { version = "0.7.13", features = ["with-serde_json-1"] }
 uuid = { version = "1.13.1", features = ["v4"] }

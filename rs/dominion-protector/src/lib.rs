@@ -26,6 +26,7 @@ enum Commands {
     Serve(serve::ServeCommand),
     Watch(watch::WatchCommand),
     Clear(clear::ClearCommand),
+    Experiment(experiment::ExperimentCommand),
 }
 
 impl Cli {
@@ -37,6 +38,7 @@ impl Cli {
             Commands::Serve(cmd) => cmd.run().await,
             Commands::Watch(cmd) => cmd.run().await,
             Commands::Clear(cmd) => cmd.run().await,
+            Commands::Experiment(cmd) => cmd.run().await,
         }
     }
 }

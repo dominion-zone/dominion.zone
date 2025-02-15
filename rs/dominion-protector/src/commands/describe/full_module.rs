@@ -1,36 +1,20 @@
-use std::str::FromStr;
-
 use crate::{
     ai::AI,
     commands::{
-        decompile::{decompile, get_or_decompile_module, DecompileParams},
-        describe::structure,
-        download::{download_object, get_or_download_object, DownloadObjectParams},
+        decompile::get_or_decompile_module, describe::structure, download::get_or_download_object,
     },
     db::{
-        build_db,
-        descriptions::{
-            create_description_tables_if_needed, FullModuleDescription, ModuleDescription,
-            SecurityLevel,
-        },
-        sources::{read_source_from_db, ModuleSource},
+        descriptions::{create_description_tables_if_needed, FullModuleDescription},
+        sources::ModuleSource,
     },
-    prompts::Prompts,
     sui_client::SuiClientWithNetwork,
 };
 use anyhow::{bail, Context, Result};
-use clap::{Args, Subcommand};
 use move_binary_format::CompiledModule;
 use move_core_types::{account_address::AccountAddress, language_storage::ModuleId};
-use openai_dive::v1::resources::chat::{
-    ChatCompletionParametersBuilder, ChatCompletionResponseFormat, ChatMessage, ChatMessageContent,
-    JsonSchema, JsonSchemaBuilder,
-};
-use serde_json::json;
-use sui_sdk::{
-    rpc_types::SuiRawData,
-    types::{base_types::ObjectID, Identifier},
-};
+
+use openai_dive::v1::resources::chat::{ChatMessage, ChatMessageContent};
+use sui_sdk::rpc_types::SuiRawData;
 use tokio_postgres::Client;
 
 use super::module;
@@ -137,12 +121,8 @@ pub async fn get_or_describe(
     if let Some(module) = module {
         Ok(module)
     } else {
-        let package = get_or_download_object(DownloadObjectParams {
-            object_id: module_id.address().clone().into(),
-            client,
-            db,
-        })
-        .await?;
+        let package =
+            get_or_download_object(module_id.address().clone().into(), client, db).await?;
         if let Some(SuiRawData::Package(package)) = package.bcs {
             let compiled = CompiledModule::deserialize_with_defaults(
                 &package

@@ -1,6 +1,9 @@
 use std::str::FromStr;
 
 use clap::{Args, Subcommand};
+use move_binary_format::CompiledModule;
+use move_core_types::account_address::AccountAddress;
+use move_model::compiled_model::BinaryModel;
 use sui_sdk::{
     rpc_types::{SuiObjectData, SuiObjectDataOptions, SuiRawData},
     types::{base_types::ObjectID, move_package::TypeOrigin, object::Owner},
@@ -51,12 +54,7 @@ impl DownloadCommand {
                     return Ok(());
                 }
                 */
-                download_object(DownloadObjectParams {
-                    object_id,
-                    client: &client,
-                    db: &mut db,
-                })
-                .await?;
+                download_object(object_id, &client, &mut db).await?;
                 Ok(())
             }
             DownloadType::Transaction { digest } => {
@@ -66,18 +64,10 @@ impl DownloadCommand {
     }
 }
 
-pub struct DownloadObjectParams<'a> {
-    pub object_id: ObjectID,
-    pub client: &'a SuiClientWithNetwork,
-    pub db: &'a mut Client,
-}
-
 pub async fn download_object(
-    DownloadObjectParams {
-        object_id,
-        client,
-        db,
-    }: DownloadObjectParams<'_>,
+    object_id: ObjectID,
+    client: &SuiClientWithNetwork,
+    db: &mut Client,
 ) -> Result<SuiObjectData> {
     create_objects_tables_if_needed(&db).await?;
     // let inner = async {
@@ -200,6 +190,25 @@ pub async fn download_object(
                 )
                 .await?;
             }
+            for (dependency_id, upgrade_info) in &package.linkage_table {
+                tx.execute(
+                    "INSERT INTO package_linkage_table(
+                        package_id,
+                        network,
+                        dependency_id,
+                        upgraded_id,
+                        upgraded_version)
+                    VALUES($1, $2, $3, $4, $5)",
+                    &[
+                        &package.id.to_string(),
+                        &client.network,
+                        &dependency_id.to_string(),
+                        &upgrade_info.upgraded_id.to_string(),
+                        &i64::try_from(upgrade_info.upgraded_version.value())?
+                    ],
+                )
+                .await?;
+            }
         }
     }
     tx.commit().await?;
@@ -221,17 +230,47 @@ pub async fn download_object(
     }*/
 }
 
-pub async fn get_or_download_object(mut params: DownloadObjectParams<'_>) -> Result<SuiObjectData> {
-    create_objects_tables_if_needed(&mut params.db).await?;
-    let object = read_object_from_db(
-        params.object_id,
-        params.client.network.clone(),
-        &mut params.db,
-    )
-    .await?;
-    Ok(if let Some(package) = object {
-        package
+pub async fn get_or_download_object(
+    object_id: ObjectID,
+    client: &SuiClientWithNetwork,
+    db: &mut Client,
+) -> Result<SuiObjectData> {
+    create_objects_tables_if_needed(db).await?;
+    let object = read_object_from_db(object_id, client.network.clone(), db).await?;
+    Ok(if let Some(object) = object {
+        object
     } else {
-        download_object(params).await?
+        download_object(object_id, client, db).await?
     })
+}
+
+pub async fn get_or_download_binary_model(
+    package_id: ObjectID,
+    client: &SuiClientWithNetwork,
+    db: &mut Client,
+) -> Result<BinaryModel> {
+    let mut modules = Vec::<CompiledModule>::new();
+    let mut unresolved_dependenices = vec![package_id];
+    while !unresolved_dependenices.is_empty() {
+        let dependency_id = unresolved_dependenices.pop().unwrap();
+        let dependency = get_or_download_object(dependency_id, client, db).await?;
+        if let SuiRawData::Package(dependency) = dependency.bcs.unwrap() {
+            for bytecode in dependency.module_map.values() {
+                let compiled = CompiledModule::deserialize_with_defaults(&bytecode)?;
+                modules.push(compiled);
+            }
+            unresolved_dependenices.extend(
+                dependency
+                    .linkage_table
+                    .keys()
+                    .filter(|dependency| {
+                        AccountAddress::from(**dependency) != AccountAddress::ONE
+                            && AccountAddress::from(**dependency) != AccountAddress::TWO
+                    })
+                    .map(Clone::clone),
+            );
+        }
+    }
+
+    Ok(BinaryModel::new(modules))
 }

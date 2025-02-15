@@ -18,7 +18,7 @@ use tokio::{fs, process::Command};
 use tokio_postgres::Client;
 
 use crate::{
-    commands::download::{get_or_download_object, DownloadObjectParams},
+    commands::download::get_or_download_object,
     db::{
         build_db,
         sources::{create_sources_tables_if_needed, read_source_from_db, ModuleSource},
@@ -37,12 +37,7 @@ impl DecompileCommand {
         let mut db = build_db().await?;
         let object_id = ObjectID::from_str(&self.id)?;
         println!("Decompiling package with ID: {}", object_id);
-        let package = get_or_download_object(DownloadObjectParams {
-            object_id,
-            client: &client,
-            db: &mut db,
-        })
-        .await?;
+        let package = get_or_download_object(object_id, &client, &mut db).await?;
         if let SuiRawData::Package(package) = package.bcs.unwrap() {
             let _ = decompile(DecompileParams {
                 network: client.network.clone(),
@@ -146,12 +141,7 @@ pub async fn get_or_decompile_module(
         Ok(source)
     } else {
         let object_id: ObjectID = module_id.address().clone().into();
-        let package = get_or_download_object(DownloadObjectParams {
-            object_id,
-            client,
-            db,
-        })
-        .await?;
+        let package = get_or_download_object(object_id, client, db).await?;
         if let SuiRawData::Package(package) = package.bcs.unwrap() {
             let modules = decompile(DecompileParams {
                 network: client.network.clone(),

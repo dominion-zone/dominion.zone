@@ -1,36 +1,12 @@
-use std::str::FromStr;
-
-use crate::{
-    ai::AI,
-    commands::{
-        decompile::{decompile, get_or_decompile_module, DecompileParams},
-        download::{download_object, get_or_download_object, DownloadObjectParams},
-    },
-    db::{
-        build_db,
-        descriptions::{
-            create_description_tables_if_needed, FullModuleDescription, ModuleDescription,
-            SecurityLevel, StructDescription,
-        },
-        sources::{read_source_from_db, ModuleSource},
-    },
-    prompts::Prompts,
-    sui_client::SuiClientWithNetwork,
-};
+use crate::{ai::AI, db::descriptions::StructDescription};
 use anyhow::{bail, Context, Result};
-use clap::{Args, Subcommand};
-use move_core_types::{account_address::AccountAddress, language_storage::ModuleId};
+use move_core_types::language_storage::ModuleId;
 use openai_dive::v1::resources::chat::{
     ChatCompletionParametersBuilder, ChatCompletionResponseFormat, ChatMessage, ChatMessageContent,
-    JsonSchema, JsonSchemaBuilder,
+    JsonSchemaBuilder,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use sui_sdk::{
-    rpc_types::SuiRawData,
-    types::{base_types::ObjectID, Identifier},
-};
-use tokio_postgres::Client;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct Ownership {
