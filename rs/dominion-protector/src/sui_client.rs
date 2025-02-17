@@ -50,7 +50,6 @@ impl SuiClientWithNetwork {
     }
 }
 
-
 /*
 pub fn retrieve_wallet() -> Result<WalletContext, anyhow::Error> {
     let wallet_conf = sui_config_dir()?.join(SUI_CLIENT_CONFIG);

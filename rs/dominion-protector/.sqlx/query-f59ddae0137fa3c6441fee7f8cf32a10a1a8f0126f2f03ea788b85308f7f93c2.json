@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO package_modules (package_id, network, module_name, module_bytecode) \n             VALUES ($1, $2, $3, $4) \n             ON CONFLICT (package_id, network, module_name) \n             DO UPDATE SET module_bytecode = EXCLUDED.module_bytecode",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bpchar",
+        "Varchar",
+        "Text",
+        "Bytea"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f59ddae0137fa3c6441fee7f8cf32a10a1a8f0126f2f03ea788b85308f7f93c2"
+}

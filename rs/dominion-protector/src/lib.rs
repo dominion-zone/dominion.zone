@@ -1,14 +1,13 @@
 use clap::{Parser, Subcommand};
 
+pub mod ai;
 pub mod commands;
 pub mod db;
-pub mod sui_client;
 pub mod prompts;
-pub mod ai;
+pub mod sui_client;
 
 use anyhow::Result;
 use commands::*;
-
 
 #[derive(Parser)]
 #[command(name = "cli_tool")]
@@ -21,11 +20,11 @@ pub struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     Download(download::DownloadCommand),
-    Decompile(decompile::DecompileCommand),
-    Describe(describe::DescribeCommand),
+    // Decompile(decompile::DecompileCommand),
+    // Describe(describe::DescribeCommand),
     Serve(serve::ServeCommand),
     Watch(watch::WatchCommand),
-    Clear(clear::ClearCommand),
+    // Clear(clear::ClearCommand),
     Experiment(experiment::ExperimentCommand),
 }
 
@@ -33,11 +32,11 @@ impl Cli {
     pub async fn run(self) -> Result<()> {
         match self.command {
             Commands::Download(cmd) => cmd.run().await,
-            Commands::Decompile(cmd) => cmd.run().await,
-            Commands::Describe(cmd) => cmd.run().await,
+            // Commands::Decompile(cmd) => cmd.run().await,
+            // Commands::Describe(cmd) => cmd.run().await,
             Commands::Serve(cmd) => cmd.run().await,
             Commands::Watch(cmd) => cmd.run().await,
-            Commands::Clear(cmd) => cmd.run().await,
+            // Commands::Clear(cmd) => cmd.run().await,
             Commands::Experiment(cmd) => cmd.run().await,
         }
     }

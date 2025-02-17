@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO package_linkage (package_id, network, dependency_id, upgraded_id, upgraded_version)\n             VALUES ($1, $2, $3, $4, $5)\n             ON CONFLICT (package_id, network, dependency_id) DO UPDATE\n             SET upgraded_id = EXCLUDED.upgraded_id, upgraded_version = EXCLUDED.upgraded_version",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bpchar",
+        "Varchar",
+        "Bpchar",
+        "Bpchar",
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "ae3448d3b2d3e384c94606bb1373476261a35a350acac0138135cb54c44753e0"
+}

@@ -1,6 +1,6 @@
+use anyhow::Result;
 use clap::Parser;
 use dominion_protector::Cli;
-use anyhow::Result;
 
 #[tokio::main]
 async fn main() -> Result<()> {

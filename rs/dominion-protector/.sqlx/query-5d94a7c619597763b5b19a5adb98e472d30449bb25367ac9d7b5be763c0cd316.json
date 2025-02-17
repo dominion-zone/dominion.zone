@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO structures (\n            package_id, network, module_name, datatype_name, origin, \n            field_count, type_argument_count, source_code, \n            has_key, has_copy, has_drop, has_store\n        ) VALUES (\n            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12\n        )",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bpchar",
+        "Varchar",
+        "Text",
+        "Text",
+        "Bpchar",
+        "Int4",
+        "Int4",
+        "Text",
+        "Bool",
+        "Bool",
+        "Bool",
+        "Bool"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "5d94a7c619597763b5b19a5adb98e472d30449bb25367ac9d7b5be763c0cd316"
+}

@@ -1,0 +1,42 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT package_id, network, module_name, module_bytecode \n             FROM package_modules \n             WHERE package_id = $1 AND network = $2 AND module_name = $3",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "package_id",
+        "type_info": "Bpchar"
+      },
+      {
+        "ordinal": 1,
+        "name": "network",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "module_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "module_bytecode",
+        "type_info": "Bytea"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bpchar",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "dcdbdb28d6f987e30de96280731a598821e91e0f1dd557b06f4e0adc61eef556"
+}

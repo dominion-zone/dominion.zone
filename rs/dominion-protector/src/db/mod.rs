@@ -1,40 +1,24 @@
 use anyhow::Result;
 use std::env;
-use tokio_postgres::{Client, NoTls};
 
-pub mod descriptions;
-pub mod objects;
-pub mod sources;
+// pub mod descriptions;
+pub mod full_object;
+pub mod function;
+pub mod object;
+pub mod package_linkage;
+pub mod package_module;
+pub mod structure;
+// pub mod sources;
 
-pub async fn build_db() -> Result<Client> {
-    let database_url = env::var("DATABASE_URL")?;
-    let (db, connection) = tokio_postgres::connect(&database_url, NoTls).await?;
-    tokio::spawn(async move {
-        if let Err(e) = connection.await {
-            eprintln!("connection error: {}", e);
-        }
-    });
-    Ok(db)
+pub struct Db {
+    pub pool: sqlx::PgPool,
 }
 
-pub async fn clear_db(client: &mut Client) -> Result<()> {
-    client
-        .batch_execute("drop table function_entity_descriptions;")
-        .await?;
-    client
-        .batch_execute("drop table function_descriptions;")
-        .await?;
-    client
-        .batch_execute("drop table struct_descriptions;")
-        .await?;
-    client
-        .batch_execute("drop table module_descriptions;")
-        .await?;
-    client.batch_execute("drop table module_sources;").await?;
-    client
-        .batch_execute("drop table package_type_origins;")
-        .await?;
-    client.batch_execute("drop table package_modules;").await?;
-    client.batch_execute("drop table objects;").await?;
-    Ok(())
+impl Db {
+    pub async fn new() -> Result<Self> {
+        let database_url = env::var("DATABASE_URL")?;
+        let pool = sqlx::PgPool::connect(&database_url).await?;
+        sqlx::migrate!("./migrations").run(&pool).await?;
+        Ok(Self { pool })
+    }
 }

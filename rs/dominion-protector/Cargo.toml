@@ -13,12 +13,12 @@ move_binary_format = { git = "https://github.com/mystenlabs/sui", package = "mov
 move_core_types = { git = "https://github.com/mystenlabs/sui", package = "move-core-types"}
 move_model= { git = "https://github.com/mystenlabs/sui", package = "move-model-2"}
 clap.workspace = true
-tokio-postgres = { version = "0.7.13", features = ["with-serde_json-1"] }
 uuid = { version = "1.13.1", features = ["v4"] }
-postgres-types = { version = "0.2.9", features = ["derive"] }
 tempfile = "3.16.0"
 openai_dive = "0.7.3"
 serde_json = "1.0.138"
 serde_yml = "0.0.12"
 serde = { version = "1.0.217", features = ["derive"] }
 axum = "0.8.1"
+sqlx = { version = "0.8.3", features = ["chrono", "derive", "json", "macros", "migrate", "postgres", "runtime-tokio-rustls"] }
+chrono = "0.4.39"
