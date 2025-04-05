@@ -7,7 +7,7 @@ use std::{
 use clap::{Args, Subcommand};
 use move_binary_format::CompiledModule;
 use move_core_types::account_address::AccountAddress;
-use move_model::compiled_model::BinaryModel;
+use move_model::compiled_model::Model;
 use sqlx::PgConnection;
 use sui_sdk::{
     rpc_types::{SuiObjectData, SuiObjectDataOptions, SuiRawData},
@@ -16,7 +16,7 @@ use sui_sdk::{
 
 use crate::{
     db::{
-        full_object::{load_object, save_object},
+        full_object::{load_object, save_rpc_object},
         Db,
     },
     sui_client::SuiClientWithNetwork,
@@ -106,7 +106,7 @@ pub async fn download_object(
     */
 
     let mut tx = db.pool.begin().await?;
-    save_object(&mut *tx, &client.network, &data).await?;
+    save_rpc_object(&mut *tx, &client.network, &data).await?;
     tx.commit().await?;
     Ok(data)
 }
@@ -128,7 +128,7 @@ pub async fn get_or_download_binary_model(
     package_id: ObjectID,
     client: &SuiClientWithNetwork,
     db: &Db,
-) -> Result<BinaryModel> {
+) -> Result<()> {
     let mut modules = Vec::<CompiledModule>::new();
     let mut unresolved_dependenices = vec![package_id];
     while !unresolved_dependenices.is_empty() {
@@ -152,5 +152,5 @@ pub async fn get_or_download_binary_model(
         }
     }
 
-    Ok(BinaryModel::new(modules))
+    Ok(())
 }

@@ -1,4 +1,4 @@
-CREATE TYPE Visibility AS ENUM ('Private', 'Public', 'Package');
+CREATE TYPE Visibility AS ENUM ('Private', 'Public', 'Package', 'Friend');
 
 CREATE TABLE functions (
     package_id          CHAR(66) NOT NULL,

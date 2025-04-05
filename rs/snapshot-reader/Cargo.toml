@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 anyhow.workspace = true
 clap.workspace = true
+dominion-protector = { version = "0.1.0", path = "../dominion-protector" }
 sui-core = { git = "https://github.com/mystenlabs/sui", branch = "devnet" }
 sui-snapshot = { git = "https://github.com/mystenlabs/sui", branch = "devnet" }
 sui-types = { git = "https://github.com/mystenlabs/sui", branch = "devnet" }

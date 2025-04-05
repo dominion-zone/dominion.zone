@@ -2301,6 +2301,7 @@ dependencies = [
  "sui-config",
  "sui-keys",
  "sui-sdk",
+ "sui-types",
  "tempfile",
  "tokio",
  "uuid",
@@ -7850,6 +7851,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "clap",
+ "dominion-protector",
  "sui-core",
  "sui-snapshot",
  "sui-types",

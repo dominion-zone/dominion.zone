@@ -17,6 +17,7 @@ use sui_sdk::{
 use anyhow::{Context, Result};
 use sqlx::{query_as_unchecked, query_unchecked, Executor};
 use sqlx::{FromRow, Postgres};
+use sui_types::object::Data;
 
 #[derive(
     Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, sqlx::Type,
@@ -158,6 +159,32 @@ impl From<(&SuiObjectData, &str)> for Object {
             owner_type,
             owner,
             initial_shared_version,
+            read_at,
+        }
+    }
+}
+
+impl From<(&Data, &str)> for Object {
+    fn from((data, network): (&Data, &str)) -> Self {
+        let object_id = data.id().to_string();
+        let version =
+            i64::try_from(data.try_as_package().map_or(0, |p| p.version().value())).unwrap();
+        let digest = data.try_as_package().map_or("".to_string(), |p| {
+            ObjectDigest::new(p.digest(false)).to_string()
+        });
+        let object_type = data
+            .type_()
+            .map_or("package".to_string(), |t| t.to_canonical_string(true));
+        let read_at = Utc::now();
+        Self {
+            object_id,
+            network: network.to_owned(),
+            version,
+            digest,
+            object_type,
+            owner_type: OwnerType::Immutable, // Todo
+            owner: None,
+            initial_shared_version: None,
             read_at,
         }
     }

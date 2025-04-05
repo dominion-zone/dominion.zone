@@ -7,6 +7,7 @@ use sqlx::{query_as_unchecked, query_unchecked, Error, Executor, FromRow, Postgr
 pub enum Visibility {
     Private,
     Public,
+    Friend,
     Package,
 }
 

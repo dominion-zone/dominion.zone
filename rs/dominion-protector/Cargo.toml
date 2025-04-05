@@ -12,6 +12,7 @@ sui_keys = { git = "https://github.com/mystenlabs/sui", package = "sui-keys", br
 move_binary_format = { git = "https://github.com/mystenlabs/sui", package = "move-binary-format", branch = "devnet"}
 move_core_types = { git = "https://github.com/mystenlabs/sui", package = "move-core-types", branch = "devnet"}
 move_model= { git = "https://github.com/mystenlabs/sui", package = "move-model-2", branch = "devnet"}
+sui-types = { git = "https://github.com/mystenlabs/sui", branch = "devnet" }
 clap.workspace = true
 uuid = { version = "1.13.1", features = ["v4"] }
 tempfile = "3.16.0"
