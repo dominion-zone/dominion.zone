@@ -3,10 +3,12 @@ import {
   createEffect,
   For,
   JSX,
+  Match,
   mergeProps,
   Setter,
   Show,
   splitProps,
+  Switch,
 } from 'solid-js';
 
 import {
@@ -19,7 +21,7 @@ import {
   ListboxSingleProps,
   Transition,
 } from 'terracotta';
-import {KnownPackages} from '../data/KnownPackages';
+import {knownPackagesQuery} from '../data/KnownPackages';
 import {CheckIcon, ChevronsUpDown, ExternalLinkIcon} from 'lucide-solid';
 
 export type KnownPackageSelectorProps = Omit<
@@ -45,13 +47,13 @@ const KnownPackageSelector: Component<KnownPackageSelectorProps> = props => {
     'setPackageId',
   ]);
 
-  const packages = KnownPackages({
+  const packages = knownPackagesQuery({
     get network() {
       return myProps.network;
     },
   });
 
-  createEffect((network) => {
+  createEffect(network => {
     if (network !== myProps.network) {
       myProps.setPackageId(null);
     }
@@ -88,7 +90,7 @@ const KnownPackageSelector: Component<KnownPackageSelectorProps> = props => {
               leaveTo="listbox__transition--leave-to"
             >
               <ListboxOptions unmount={false} class="listbox__options">
-                <For each={packages()}>
+                <For each={packages.isLoading ? [] : packages.data || []}>
                   {(packageId): JSX.Element => (
                     <ListboxOption class="listbox__option" value={packageId}>
                       {({isActive, isSelected}): JSX.Element => (

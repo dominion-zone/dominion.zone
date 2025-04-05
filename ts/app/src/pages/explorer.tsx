@@ -1,4 +1,4 @@
-import {createEffect, createSignal} from 'solid-js';
+import {createEffect, createSignal, ErrorBoundary, Suspense} from 'solid-js';
 import KnownPackageSelector from '../components/KnownPackageSelector';
 import {
   useSuiNetwork,
@@ -18,8 +18,12 @@ import {isValidSuiAddress} from '@mysten/sui/utils';
 
 export default function Explorer() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [network, setNetwork] = createSignal(searchParams.network as string ?? 'devnet');
-  const [packageId, setPackageId] = createSignal(searchParams.packageId as string);
+  const [network, setNetwork] = createSignal(
+    (searchParams.network as string) ?? 'devnet',
+  );
+  const [packageId, setPackageId] = createSignal(
+    searchParams.packageId as string,
+  );
   createEffect(() => {
     setSearchParams({network: network()});
   });

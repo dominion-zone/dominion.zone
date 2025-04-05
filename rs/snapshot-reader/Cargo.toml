@@ -1,0 +1,12 @@
+[package]
+name = "snapshot-reader"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+sui-core = { git = "https://github.com/mystenlabs/sui", branch = "devnet" }
+sui-snapshot = { git = "https://github.com/mystenlabs/sui", branch = "devnet" }
+sui-types = { git = "https://github.com/mystenlabs/sui", branch = "devnet" }
+tokio = { version = "1.44.1", features = ["full"] }

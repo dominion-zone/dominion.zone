@@ -2,49 +2,10 @@
 resolver = "2"
 
 members = [
-    "rs/dominion-protector",
-    # "rs/third-party/move-core-types",
-    # "rs/third-party/move-ir-types",
-    # "rs/third-party/move-binary-format",
-    # "rs/third-party/move-bytecode-source-map",
-    # "rs/third-party/move-command-line-common",
-    # "rs/third-party/move-compiler",
-    # "rs/third-party/move-model",
-    # "rs/third-party/move-model-2",
-    # "rs/third-party/move-proc-macros",
-    # "rs/third-party/move-stackless-bytecode",
-    # "rs/third-party/move-symbol-pool",
-    # "rs/third-party/revela",
-    # "rs/third-party/enum-compat-util",
-    # "rs/third-party/move-borrow-graph",
-    # "rs/third-party/move-bytecode-verifier",
-    # "rs/third-party/move-ir-to-bytecode",
-    # "rs/third-party/move-stdlib",
-    # "rs/third-party/move-abstract-interpreter",
-    # "rs/third-party/move-abstract-stack",
-    # "rs/third-party/move-bytecode-verifier-meter",
-    # "rs/third-party/move-vm-config",
-    # "rs/third-party/move-ir-to-bytecode-syntax",
-    # "rs/third-party/move-docgen",
-    # "rs/third-party/move-package",
-    # "rs/third-party/move-stdlib-natives",
-    # "rs/third-party/move-cli",
-    # "rs/third-party/move-unit-test",
-    # "rs/third-party/move-disassembler",
-    # "rs/third-party/move-coverage",
-    # "rs/third-party/move-bytecode-utils",
-    # "rs/third-party/move-vm-types",
-    # "rs/third-party/move-vm-runtime",
-    # "rs/third-party/move-trace-format",
-    # "rs/third-party/move-vm-profiler",
-    # "rs/third-party/move-ir-compiler",
-    # "rs/third-party/move-bytecode-viewer",
-    # "rs/third-party/move-vm-test-utils",
-    # "rs/third-party/move-prover-test-utils",
-]
+    "rs/dominion-protector"
+, "rs/snapshot-reader"]
 
 # Dependencies that should be kept in sync through the whole workspace
 [workspace.dependencies]
 anyhow = "1.0.71"
 clap = { version = "4.4", features = ["derive", "wrap_help"] }
-# move-stackless-bytecode ={ path = "rs/third-party/move-stackless-bytecode" }
