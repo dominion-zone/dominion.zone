@@ -1,64 +1,80 @@
 use std::str::FromStr;
 
-use anyhow::Result;
-use move_core_types::language_storage::ModuleId;
-use tokio_postgres::Client;
+use anyhow::{Context, Result};
+use sqlx::{query_as_unchecked, query_unchecked, Executor, FromRow, Postgres};
+use sui_types::base_types::ObjectID;
 
-pub async fn create_sources_tables_if_needed(client: &Client) -> Result<()> {
-    client.batch_execute("
-        CREATE TABLE IF NOT EXISTS module_sources (
-            package_id      CHAR(66) NOT NULL,
-            network         VARCHAR(10) NOT NULL,
-            name            TEXT NOT NULL,
-            source          TEXT NOT NULL,
-            kind            VARCHAR(20) NOT NULL,
-            dependencies    TEXT[] NOT NULL,
-            PRIMARY KEY(package_id, network, name),
-            FOREIGN KEY(package_id, network) REFERENCES objects(id, network) ON DELETE CASCADE,
-            FOREIGN KEY(package_id, network, name) REFERENCES package_modules(package_id, network, name) ON DELETE CASCADE
-        );
-    ").await?;
-    Ok(())
-}
-
-#[derive(Debug, Clone)]
+#[derive(Debug, FromRow)]
 pub struct ModuleSource {
-    pub id: ModuleId,
+    pub package_id: String,
     pub network: String,
+    pub module_name: String,
     pub source: String,
     pub kind: String,
-    pub dependencies: Vec<ModuleId>,
 }
 
-pub async fn read_source_from_db(
-    module_id: ModuleId,
-    network: String,
-    db: &mut Client,
-) -> Result<Option<ModuleSource>> {
-    let rows = db
-        .query(
-            "SELECT source, kind, dependencies
-    FROM module_sources WHERE package_id = $1 AND name = $2 and network = $3",
-            &[
-                &module_id.address().to_hex_literal(),
-                &module_id.name().as_str(),
-                &network,
-            ],
+impl ModuleSource {
+    pub async fn load<'e, E>(
+        executor: E,
+        package_id: &ObjectID,
+        network: &str,
+        module_name: &str,
+    ) -> Result<Option<Self>>
+    where
+        E: Executor<'e, Database = Postgres>,
+    {
+        Ok(query_as_unchecked!(
+            ModuleSource,
+            "SELECT * FROM module_sources
+            WHERE package_id = $1 AND network = $2 AND module_name = $3",
+            &package_id.to_string(),
+            &network,
+            &module_name
         )
-        .await?;
-    if rows.is_empty() {
-        return Ok(None);
+        .fetch_optional(executor)
+        .await?)
     }
-    let dependencies: Vec<String> = rows[0].get(2);
-    println!("Dependencies: {:?}", dependencies);
-    return Ok(Some(ModuleSource {
-        id: module_id,
-        network,
-        source: rows[0].get(0),
-        kind: rows[0].get(1),
-        dependencies: dependencies
+
+    pub async fn save<'e, E>(&self, executor: E) -> Result<()>
+    where
+        E: Executor<'e, Database = Postgres>,
+    {
+        query_unchecked!(
+            "INSERT INTO module_sources (
+            package_id, network, module_name, source, kind
+        ) VALUES (
+            $1, $2, $3, $4, $5
+        )",
+            &self.package_id,
+            &self.network,
+            &self.module_name,
+            &self.source,
+            &self.kind
+        )
+        .execute(executor)
+        .await?;
+
+        Ok(())
+    }
+
+    pub async fn known_packages<'e, E>(executor: E, network: &str) -> Result<Vec<ObjectID>>
+    where
+        E: Executor<'e, Database = Postgres>,
+    {
+        let rows = query_unchecked!(
+            "SELECT package_id FROM module_sources
+            WHERE network = $1
+            GROUP BY package_id",
+            network
+        )
+        .fetch_all(executor)
+        .await?;
+        Ok(rows
             .into_iter()
-            .map(|d| ModuleId::from_str(&d))
-            .collect::<Result<Vec<_>>>()?,
-    }));
+            .map(|r| {
+                ObjectID::from_str(&r.package_id)
+                    .context(format!("Failed to parse package_id {}", &r.package_id))
+            })
+            .collect::<Result<Vec<ObjectID>>>()?)
+    }
 }

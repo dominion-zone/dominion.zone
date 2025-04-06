@@ -8,7 +8,7 @@ pub mod object;
 pub mod package_linkage;
 pub mod package_module;
 pub mod structure;
-// pub mod sources;
+pub mod sources;
 
 pub struct Db {
     pub pool: sqlx::PgPool,

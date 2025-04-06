@@ -3,7 +3,7 @@ resolver = "2"
 
 members = [
     "rs/dominion-protector"
-, "rs/snapshot-reader"]
+, "rs/service", "rs/snapshot-reader", "rs/welldone-sources"]
 
 # Dependencies that should be kept in sync through the whole workspace
 [workspace.dependencies]

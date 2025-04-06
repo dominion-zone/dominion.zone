@@ -1,0 +1,14 @@
+[package]
+name = "welldone-sources"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+dominion-protector = { version = "0.1.0", path = "../dominion-protector" }
+anyhow = { workspace = true, features = ["backtrace"] }
+tokio = { version = "1.43.0", features = ["full"] }
+clap.workspace = true
+reqwest = "0.12.15"
+serde = { version = "1.0.219", features = ["derive"] }
+chrono = { version = "0.4.39", features = ["serde"] }
+sqlx = "0.8.3"
