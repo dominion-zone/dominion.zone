@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT package_id FROM module_sources\n            WHERE network = $1\n            GROUP BY package_id",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "package_id",
+        "type_info": "Bpchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "3718fbcce87475351c0a28452f2f14a19aa9421a8f88589312cab9852fa0dc22"
+}

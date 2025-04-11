@@ -1,9 +1,10 @@
 use serde::{Deserialize, Serialize};
-use sqlx::{query_as_unchecked, query_unchecked, Error, Executor, FromRow, Postgres};
+use sqlx::{query_as, query, Error, Executor, FromRow, Postgres};
 
 #[derive(
     Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, sqlx::Type,
 )]
+#[sqlx(type_name = "visibility")]
 pub enum Visibility {
     Private,
     Public,
@@ -37,9 +38,21 @@ impl Function {
     where
         E: Executor<'a, Database = Postgres>,
     {
-        Ok(query_as_unchecked!(
+        Ok(query_as!(
             Function,
-            "SELECT * FROM functions
+            "SELECT 
+                package_id,
+                network,
+                module_name,
+                function_name,
+                visibility as \"visibility: Visibility\",
+                is_entry,
+                is_initializer,
+                type_argument_count,
+                parameter_count,
+                return_count,
+                source_code
+            FROM functions
             WHERE package_id = $1 AND network = $2 AND module_name = $3 AND function_name = $4",
             &package_id,
             &network,
@@ -55,7 +68,7 @@ impl Function {
     where
         E: Executor<'a, Database = Postgres>,
     {
-        query_unchecked!(
+        query!(
             "INSERT INTO functions (
                 package_id, network, module_name, function_name, visibility, is_entry,
                 is_initializer, type_argument_count, parameter_count, return_count, source_code
@@ -74,13 +87,13 @@ impl Function {
             &self.network,
             &self.module_name,
             &self.function_name,
-            &self.visibility,
+            self.visibility as _,
             self.is_entry,
             self.is_initializer,
             self.type_argument_count,
             self.parameter_count,
             self.return_count,
-            &self.source_code
+            self.source_code.as_ref()
         )
         .execute(executor)
         .await?;
@@ -97,9 +110,21 @@ impl Function {
     where
         E: Executor<'a, Database = Postgres>,
     {
-        Ok(query_as_unchecked!(
+        Ok(query_as!(
             Function,
-            "SELECT * FROM functions WHERE package_id = $1 AND network = $2",
+            "SELECT
+                package_id,
+                network,
+                module_name,
+                function_name,
+                visibility as \"visibility: Visibility\",
+                is_entry,
+                is_initializer,
+                type_argument_count,
+                parameter_count,
+                return_count,
+                source_code
+            FROM functions WHERE package_id = $1 AND network = $2",
             &package_id,
             &network
         )
@@ -117,9 +142,21 @@ impl Function {
     where
         E: Executor<'a, Database = Postgres>,
     {
-        Ok(query_as_unchecked!(
+        Ok(query_as!(
             Function,
-            "SELECT * FROM functions WHERE package_id = $1 AND network = $2 AND module_name = $3",
+            "SELECT 
+                package_id,
+                network,
+                module_name,
+                function_name,
+                visibility as \"visibility: Visibility\",
+                is_entry,
+                is_initializer,
+                type_argument_count,
+                parameter_count,
+                return_count,
+                source_code
+            FROM functions WHERE package_id = $1 AND network = $2 AND module_name = $3",
             &package_id,
             &network,
             &module_name

@@ -16,7 +16,8 @@
               "Enum": [
                 "Private",
                 "Public",
-                "Package"
+                "Package",
+                "Friend"
               ]
             }
           }

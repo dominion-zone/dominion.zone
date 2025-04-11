@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO objects\n            (object_id, network, version, digest, object_type, owner_type, owner, initial_shared_version)\n            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)\n            ON CONFLICT (object_id, network) DO UPDATE\n            SET\n                version = EXCLUDED.version,\n                digest = EXCLUDED.digest,\n                object_type = EXCLUDED.object_type,\n                owner_type = EXCLUDED.owner_type,\n                owner = EXCLUDED.owner,\n                initial_shared_version = EXCLUDED.initial_shared_version",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bpchar",
+        "Varchar",
+        "Int8",
+        "Varchar",
+        "Text",
+        {
+          "Custom": {
+            "name": "ownertype",
+            "kind": {
+              "Enum": [
+                "AddressOwner",
+                "ObjectOwner",
+                "Shared",
+                "Immutable",
+                "ConsensusV2"
+              ]
+            }
+          }
+        },
+        "Varchar",
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "7cae38fd13332c2c58367594858f6d6b3ba6170876627d237f7dc1ae27108d53"
+}

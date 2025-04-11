@@ -8,6 +8,7 @@ use sui_core::authority::authority_store_tables::LiveObject;
 use sui_types::base_types::ObjectID;
 use sui_types::object::Data;
 use tokio::main;
+use dominion_protector::db::object::Object;
 
 #[main]
 async fn main() -> anyhow::Result<()> {
@@ -16,9 +17,11 @@ async fn main() -> anyhow::Result<()> {
 
     let db = Db::new().await?;
 
+    let last_id = Object::last_id(&db.pool).await?;
+
     let mut i = 0;
     // let mut skip = true;
-    for obj in perpetual_tables.iter_live_object_set(false) {
+    for obj in perpetual_tables.range_iter_live_object_set(last_id, None, false) {
         if let LiveObject::Normal(obj) = obj {
             /*
             if skip && obj.id() != ObjectID::from_str("0x00f295bc68bf6480025e979e5bb7cafb113ada26a2a8a1e8f359cd157ed8d657")? {

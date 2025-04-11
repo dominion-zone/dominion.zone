@@ -1,4 +1,4 @@
-use sqlx::{query_as_unchecked, query_unchecked, Executor, FromRow, Postgres};
+use sqlx::{query_as, query, Executor, FromRow, Postgres};
 use sui_sdk::types::base_types::ObjectID;
 
 #[derive(Debug, FromRow)]
@@ -20,7 +20,7 @@ impl PackageLinkage {
     where
         E: Executor<'a, Database = Postgres>,
     {
-        query_as_unchecked!(
+        query_as!(
             PackageLinkage,
             "SELECT * FROM package_linkage WHERE package_id = $1 AND network = $2 AND dependency_id = $3",
             package_id.to_string(),
@@ -35,7 +35,7 @@ impl PackageLinkage {
     where
         E: Executor<'a, Database = Postgres>,
     {
-        query_unchecked!(
+        query!(
             "INSERT INTO package_linkage (package_id, network, dependency_id, upgraded_id, upgraded_version)
              VALUES ($1, $2, $3, $4, $5)
              ON CONFLICT (package_id, network, dependency_id) DO UPDATE
@@ -59,7 +59,7 @@ impl PackageLinkage {
     where
         E: Executor<'a, Database = Postgres>,
     {
-        query_as_unchecked!(
+        query_as!(
             PackageLinkage,
             "SELECT * FROM package_linkage WHERE package_id = $1 AND network = $2",
             package_id.to_string(),

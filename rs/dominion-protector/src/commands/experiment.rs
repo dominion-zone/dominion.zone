@@ -6,7 +6,7 @@ use sui_sdk::{rpc_types::SuiRawData, types::base_types::ObjectID};
 
 use crate::{commands::download::get_or_download_object, db::Db, sui_client::SuiClientWithNetwork};
 
-use super::download::get_or_download_binary_model;
+use super::download::get_or_download_model;
 
 #[derive(Args)]
 pub struct ExperimentCommand {

@@ -1,5 +1,5 @@
 use anyhow::Result;
-use sqlx::{query_as_unchecked, query_unchecked, Executor, Postgres};
+use sqlx::{query_as, query, Executor, Postgres};
 use sui_sdk::types::base_types::ObjectID;
 
 #[derive(Debug, Clone, sqlx::FromRow)]
@@ -20,7 +20,7 @@ impl PackageModule {
     where
         E: Executor<'a, Database = Postgres>,
     {
-        Ok(query_as_unchecked!(
+        Ok(query_as!(
             PackageModule,
             "SELECT package_id, network, module_name, module_bytecode 
              FROM package_modules 
@@ -37,7 +37,7 @@ impl PackageModule {
     where
         E: Executor<'a, Database = Postgres>,
     {
-        query_unchecked!(
+        query!(
             "INSERT INTO package_modules (package_id, network, module_name, module_bytecode) 
              VALUES ($1, $2, $3, $4) 
              ON CONFLICT (package_id, network, module_name) 
@@ -60,7 +60,7 @@ impl PackageModule {
     where
         E: Executor<'a, Database = Postgres>,
     {
-        Ok(query_as_unchecked!(
+        Ok(query_as!(
             PackageModule,
             "SELECT package_id, network, module_name, module_bytecode 
              FROM package_modules 

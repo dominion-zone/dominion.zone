@@ -1,7 +1,4 @@
-use std::{
-    collections::{BTreeMap, HashMap},
-    str::FromStr,
-};
+use std::str::FromStr;
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -15,13 +12,14 @@ use sui_sdk::{
 };
 
 use anyhow::{Context, Result};
-use sqlx::{query_as_unchecked, query_unchecked, Executor};
+use sqlx::{query, query_as, Executor};
 use sqlx::{FromRow, Postgres};
 use sui_types::object::Data;
 
 #[derive(
     Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, sqlx::Type,
 )]
+#[sqlx(type_name = "ownertype")]
 pub enum OwnerType {
     AddressOwner,
     ObjectOwner,
@@ -49,9 +47,19 @@ impl Object {
         object_id: &ObjectID,
         network: &str,
     ) -> Result<Option<Self>> {
-        Ok(query_as_unchecked!(
+        Ok(query_as!(
             Object,
-            "SELECT * FROM objects
+            "SELECT
+                object_id,
+                network,
+                version,
+                digest,
+                object_type,
+                owner_type as \"owner_type: OwnerType\",
+                owner,
+                initial_shared_version,
+                read_at
+            FROM objects
             WHERE object_id = $1 AND network = $2",
             &object_id.to_string(),
             &network
@@ -61,22 +69,37 @@ impl Object {
     }
 
     pub async fn save<'c, E: Executor<'c, Database = Postgres>>(&self, db: E) -> Result<()> {
-        query_unchecked!(
+        query!(
             "INSERT INTO objects
             (object_id, network, version, digest, object_type, owner_type, owner, initial_shared_version)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             ON CONFLICT (object_id, network) DO UPDATE
-            SET version = $3, digest = $4, object_type = $5, owner_type = $6, owner = $7, initial_shared_version = $8",
+            SET
+                version = EXCLUDED.version,
+                digest = EXCLUDED.digest,
+                object_type = EXCLUDED.object_type,
+                owner_type = EXCLUDED.owner_type,
+                owner = EXCLUDED.owner,
+                initial_shared_version = EXCLUDED.initial_shared_version",
             &self.object_id,
             &self.network,
             &self.version,
             &self.digest,
             &self.object_type,
-            &self.owner_type,
-            &self.owner,
-            &self.initial_shared_version)
+            self.owner_type as _,
+            self.owner.as_ref(),
+            self.initial_shared_version.as_ref())
             .execute(db).await?;
         Ok(())
+    }
+
+    pub async fn last_id<'c, E: Executor<'c, Database = Postgres>>(db: E) -> Result<Option<ObjectID>> {
+        let row = query!(
+            "SELECT object_id FROM objects ORDER BY read_at DESC LIMIT 1"
+        )
+        .fetch_optional(db)
+        .await?;
+        Ok(row.map(|r| ObjectID::from_hex_literal(&r.object_id)).transpose()?)
     }
 }
 

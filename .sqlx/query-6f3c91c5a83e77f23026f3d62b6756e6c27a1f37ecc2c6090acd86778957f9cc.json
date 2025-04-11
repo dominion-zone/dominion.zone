@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO module_sources (\n            package_id, network, module_name, source, kind\n        ) VALUES (\n            $1, $2, $3, $4, $5\n        )",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bpchar",
+        "Varchar",
+        "Text",
+        "Text",
+        "Varchar"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "6f3c91c5a83e77f23026f3d62b6756e6c27a1f37ecc2c6090acd86778957f9cc"
+}

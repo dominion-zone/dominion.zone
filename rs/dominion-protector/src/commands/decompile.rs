@@ -8,21 +8,20 @@ use std::{
 use anyhow::{bail, Context, Result};
 use clap::Args;
 use move_binary_format::CompiledModule;
+use move_bytecode_utils::Modules;
 use move_core_types::language_storage::ModuleId;
+use sqlx::{query, Acquire, Postgres};
 use sui_sdk::{
     rpc_types::{SuiRawData, SuiRawMovePackage},
     types::{base_types::ObjectID, Identifier},
 };
 use tempfile::tempdir;
 use tokio::{fs, process::Command};
-use tokio_postgres::Client;
 
 use crate::{
     commands::download::get_or_download_object,
-    db::{
-        build_db,
-        sources::{create_sources_tables_if_needed, read_source_from_db, ModuleSource},
-    },
+    db::{sources::ModuleSource, Db},
+    decompiler::decompile_module_to_smt,
     sui_client::SuiClientWithNetwork,
 };
 
@@ -34,17 +33,14 @@ pub struct DecompileCommand {
 impl DecompileCommand {
     pub async fn run(self) -> Result<()> {
         let client = SuiClientWithNetwork::with_default_network().await?;
-        let mut db = build_db().await?;
+        let mut db = Db::new().await?;
         let object_id = ObjectID::from_str(&self.id)?;
         println!("Decompiling package with ID: {}", object_id);
         let package = get_or_download_object(object_id, &client, &mut db).await?;
         if let SuiRawData::Package(package) = package.bcs.unwrap() {
-            let _ = decompile(DecompileParams {
-                network: client.network.clone(),
-                package: &package,
-                db: &mut db,
-            })
-            .await?;
+            let mut tx = db.pool.begin().await?;
+            let _ = decompile_package(&mut *tx, &client.network, &package).await?;
+            tx.commit().await?;
         } else {
             bail!("Object is not a package");
         }
@@ -52,84 +48,77 @@ impl DecompileCommand {
     }
 }
 
-pub struct DecompileParams<'a> {
-    pub network: String,
-    pub package: &'a SuiRawMovePackage,
-    pub db: &'a mut Client,
-}
+pub async fn decompile_module_with_revela_cli<'a, A>(
+    db: A,
+    network: &str,
+    package_id: ObjectID,
+    module_name: &str,
+    module_bytecode: &[u8],
+) -> Result<ModuleSource>
+where
+    A: Acquire<'a, Database = Postgres>,
+{
+    let mut db = db.acquire().await?;
+    // let binary = CompiledModule::deserialize_with_defaults(&module_bytecode)?;
+    let dir = tempdir()?;
+    let file_path = dir.path().join(format!("{}.mv", module_name));
+    let mut file = File::create(&file_path)?;
+    file.write_all(&module_bytecode)?;
+    let source = Command::new("revela")
+        .arg("-b")
+        .arg(&file_path)
+        .output()
+        .await?;
+    fs::remove_file(file_path).await?;
 
-pub async fn decompile(
-    DecompileParams {
-        package,
-        network,
-        db,
-    }: DecompileParams<'_>,
-) -> Result<BTreeMap<Identifier, ModuleSource>> {
-    create_sources_tables_if_needed(&db).await?;
-    let mut modules = BTreeMap::<Identifier, ModuleSource>::new();
-    let tx = db.transaction().await?;
-    for (name, bytecode) in &package.module_map {
-        let binary = CompiledModule::deserialize_with_defaults(&bytecode)?;
-        let dependencies: Vec<_> = binary
-            .immediate_dependencies()
-            .into_iter()
-            .map(|d| d.to_canonical_string(true))
-            .collect();
-        let dir = tempdir()?;
-        let file_path = dir.path().join(format!("{}.mv", name));
-        let mut file = File::create(&file_path)?;
-        file.write_all(&bytecode)?;
-        let source = Command::new("revela")
-            .arg("-b")
-            .arg(&file_path)
-            .output()
-            .await?;
-        fs::remove_file(file_path).await?;
-        let name_id = Identifier::from_str(&name)?;
-        modules.insert(
-            name_id.clone(),
-            ModuleSource {
-                id: ModuleId::new(package.id.into(), name_id),
-                network: network.clone(),
-                source: from_utf8(&source.stdout)?.to_string(),
-                kind: "revela".to_string(),
-                dependencies: dependencies
-                    .iter()
-                    .map(|d| ModuleId::from_str(&d))
-                    .collect::<Result<Vec<_>>>()?,
-            },
+    if source.status.success() {
+        let sources = ModuleSource {
+            package_id: package_id.to_string(),
+            module_name: module_name.to_string(),
+            network: network.to_string(),
+            source: from_utf8(&source.stdout)?.to_string(),
+            kind: "revela".to_string(),
+        };
+        sources.save(&mut *db).await?;
+        Ok(sources)
+    } else {
+        bail!(
+            "Failed to decompile module {}: {}",
+            module_name,
+            from_utf8(&source.stderr)?
         );
-        if source.status.success() {
-            tx.execute(
-                "INSERT INTO module_sources(
-                    package_id,
-                    network,
-                    name,
-                    source,
-                    kind,
-                    dependencies)
-                VALUES($1, $2, $3, $4, 'revela', $5)",
-                &[
-                    &package.id.to_string(),
-                    &network,
-                    &name,
-                    &from_utf8(&source.stdout)?,
-                    &dependencies,
-                ],
-            )
-            .await?;
-        } else {
-            bail!(
-                "Failed to decompile module {}: {}",
-                name,
-                from_utf8(&source.stderr)?
-            );
-        }
     }
-    tx.commit().await?;
-    Ok(modules)
 }
 
+pub async fn decompile_package<'a, A>(
+    db: A,
+    network: &str,
+    package: &SuiRawMovePackage,
+) -> Result<()>
+// Result<BTreeMap<Identifier, ModuleSource>>
+where
+    A: Acquire<'a, Database = Postgres>,
+{
+    // let mut modules = BTreeMap::<Identifier, ModuleSource>::new();
+    let compiled = package
+        .module_map
+        .values()
+        .map(|m| Ok(CompiledModule::deserialize_with_defaults(m)?))
+        .collect::<Result<Vec<_>>>()?;
+    let mut db = db.acquire().await?;
+    let all_modules = Modules::new(compiled.iter());
+    for module in all_modules.compute_topological_order()? {
+        /*
+        let name_id = Identifier::from_str(&module_name)?;
+        modules.insert(
+            name_id,*/
+        decompile_module_to_smt(&mut *db, network, package.id, module).await?; /*,
+                                                                               );*/
+    }
+    Ok(())
+}
+
+/*
 pub async fn get_or_decompile_module(
     module_id: ModuleId,
     client: &SuiClientWithNetwork,
@@ -143,7 +132,7 @@ pub async fn get_or_decompile_module(
         let object_id: ObjectID = module_id.address().clone().into();
         let package = get_or_download_object(object_id, client, db).await?;
         if let SuiRawData::Package(package) = package.bcs.unwrap() {
-            let modules = decompile(DecompileParams {
+            let modules = decompile_package(DecompileParams {
                 network: client.network.clone(),
                 package: &package,
                 db,
@@ -158,3 +147,4 @@ pub async fn get_or_decompile_module(
         }
     }
 }
+*/

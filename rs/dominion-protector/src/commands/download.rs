@@ -1,5 +1,6 @@
 use std::{
     cell::{RefCell, RefMut},
+    collections::BTreeMap,
     ops::DerefMut,
     str::FromStr,
 };
@@ -124,11 +125,11 @@ pub async fn get_or_download_object(
     })
 }
 
-pub async fn get_or_download_binary_model(
+pub async fn get_or_download_model(
     package_id: ObjectID,
     client: &SuiClientWithNetwork,
     db: &Db,
-) -> Result<()> {
+) -> Result<Model> {
     let mut modules = Vec::<CompiledModule>::new();
     let mut unresolved_dependenices = vec![package_id];
     while !unresolved_dependenices.is_empty() {
@@ -151,6 +152,7 @@ pub async fn get_or_download_binary_model(
             );
         }
     }
+    let model = Model::from_compiled(&BTreeMap::new(), modules);
 
-    Ok(())
+    Ok(model)
 }

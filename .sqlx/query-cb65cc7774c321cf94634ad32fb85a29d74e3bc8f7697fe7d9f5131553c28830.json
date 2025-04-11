@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT * FROM functions WHERE package_id = $1 AND network = $2 AND module_name = $3",
+  "query": "SELECT\n                package_id,\n                network,\n                module_name,\n                function_name,\n                visibility as \"visibility: Visibility\",\n                is_entry,\n                is_initializer,\n                type_argument_count,\n                parameter_count,\n                return_count,\n                source_code\n            FROM functions WHERE package_id = $1 AND network = $2",
   "describe": {
     "columns": [
       {
@@ -25,7 +25,7 @@
       },
       {
         "ordinal": 4,
-        "name": "visibility",
+        "name": "visibility: Visibility",
         "type_info": {
           "Custom": {
             "name": "visibility",
@@ -33,7 +33,8 @@
               "Enum": [
                 "Private",
                 "Public",
-                "Package"
+                "Package",
+                "Friend"
               ]
             }
           }
@@ -73,7 +74,6 @@
     "parameters": {
       "Left": [
         "Bpchar",
-        "Text",
         "Text"
       ]
     },
@@ -91,5 +91,5 @@
       true
     ]
   },
-  "hash": "362e38e6a2e441b2511c09df4acb75bbc218ea6be73380cd7bd39ac4372586f1"
+  "hash": "cb65cc7774c321cf94634ad32fb85a29d74e3bc8f7697fe7d9f5131553c28830"
 }

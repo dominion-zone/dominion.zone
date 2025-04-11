@@ -3,6 +3,7 @@ use std::env;
 
 // pub mod descriptions;
 pub mod full_object;
+pub mod full_module;
 pub mod function;
 pub mod object;
 pub mod package_linkage;

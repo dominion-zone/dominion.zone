@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 use anyhow::{Context, Result};
-use sqlx::{query_as_unchecked, query_unchecked, Executor, FromRow, Postgres};
+use sqlx::{query_as, query, Executor, FromRow, Postgres};
 use sui_types::base_types::ObjectID;
 
 #[derive(Debug, FromRow)]
@@ -23,7 +23,7 @@ impl ModuleSource {
     where
         E: Executor<'e, Database = Postgres>,
     {
-        Ok(query_as_unchecked!(
+        Ok(query_as!(
             ModuleSource,
             "SELECT * FROM module_sources
             WHERE package_id = $1 AND network = $2 AND module_name = $3",
@@ -39,7 +39,7 @@ impl ModuleSource {
     where
         E: Executor<'e, Database = Postgres>,
     {
-        query_unchecked!(
+        query!(
             "INSERT INTO module_sources (
             package_id, network, module_name, source, kind
         ) VALUES (
@@ -61,7 +61,7 @@ impl ModuleSource {
     where
         E: Executor<'e, Database = Postgres>,
     {
-        let rows = query_unchecked!(
+        let rows = query!(
             "SELECT package_id FROM module_sources
             WHERE network = $1
             GROUP BY package_id",

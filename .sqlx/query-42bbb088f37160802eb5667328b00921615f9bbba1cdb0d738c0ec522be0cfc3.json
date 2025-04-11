@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT * FROM objects\n            WHERE object_id = $1 AND network = $2",
+  "query": "SELECT\n                object_id,\n                network,\n                version,\n                digest,\n                object_type,\n                owner_type as \"owner_type: OwnerType\",\n                owner,\n                initial_shared_version,\n                read_at\n            FROM objects\n            WHERE object_id = $1 AND network = $2",
   "describe": {
     "columns": [
       {
@@ -30,7 +30,7 @@
       },
       {
         "ordinal": 5,
-        "name": "owner_type",
+        "name": "owner_type: OwnerType",
         "type_info": {
           "Custom": {
             "name": "ownertype",
@@ -80,5 +80,5 @@
       false
     ]
   },
-  "hash": "0bd1eddccb31bcef916e3ad62c2030ea57fbb691cff8ebc95a1be769825403a6"
+  "hash": "42bbb088f37160802eb5667328b00921615f9bbba1cdb0d738c0ec522be0cfc3"
 }

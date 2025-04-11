@@ -1,5 +1,5 @@
 use anyhow::Result;
-use sqlx::{query_as_unchecked, query_unchecked, Executor, FromRow, Postgres};
+use sqlx::{query_as, query, Executor, FromRow, Postgres};
 
 #[derive(Debug, FromRow)]
 pub struct Structure {
@@ -28,7 +28,7 @@ impl Structure {
     where
         E: Executor<'e, Database = Postgres>,
     {
-        Ok(query_as_unchecked!(
+        Ok(query_as!(
             Structure,
             "SELECT * FROM structures
          WHERE package_id = $1 AND network = $2 AND module_name = $3 AND datatype_name = $4",
@@ -45,7 +45,7 @@ impl Structure {
     where
         E: Executor<'e, Database = Postgres>,
     {
-        query_unchecked!(
+        query!(
             "INSERT INTO structures (
             package_id, network, module_name, datatype_name, origin, 
             field_count, type_argument_count, source_code, 
@@ -60,7 +60,7 @@ impl Structure {
             &self.origin,
             self.field_count,
             self.type_argument_count,
-            &self.source_code,
+            self.source_code.as_ref(),
             self.has_key,
             self.has_copy,
             self.has_drop,
@@ -81,7 +81,7 @@ impl Structure {
     where
         E: Executor<'e, Database = Postgres>,
     {
-        Ok(query_as_unchecked!(
+        Ok(query_as!(
             Structure,
             "SELECT * FROM structures WHERE package_id = $1 AND network = $2 AND module_name = $3",
             &package_id,
@@ -100,7 +100,7 @@ impl Structure {
     where
         E: Executor<'e, Database = Postgres>,
     {
-        Ok(query_as_unchecked!(
+        Ok(query_as!(
             Structure,
             "SELECT * FROM structures
             WHERE package_id = $1 AND network = $2",
