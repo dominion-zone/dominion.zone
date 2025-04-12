@@ -20,15 +20,12 @@ async fn main() -> anyhow::Result<()> {
     let last_id = Object::last_id(&db.pool).await?;
 
     let mut i = 0;
-    // let mut skip = true;
+
     for obj in perpetual_tables.range_iter_live_object_set(last_id, None, false) {
         if let LiveObject::Normal(obj) = obj {
-            /*
-            if skip && obj.id() != ObjectID::from_str("0x00f295bc68bf6480025e979e5bb7cafb113ada26a2a8a1e8f359cd157ed8d657")? {
+            if Some(obj.id()) == last_id {
                 continue;
             }
-            skip = false;
-            */
             if let Data::Package(_) = &obj.data {
                 println!("{}) Package: {}", i, obj.id());
                 i += 1;
