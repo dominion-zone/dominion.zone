@@ -5,18 +5,18 @@ edition = "2021"
 
 [dependencies]
 anyhow = { workspace = true, features = ["backtrace"] }
-tokio = { version = "1.43.0", features = ["full"] }
-sui_sdk = { git = "https://github.com/mystenlabs/sui", package = "sui-sdk", branch = "devnet"}
-sui_config = { git = "https://github.com/mystenlabs/sui", package = "sui-config", branch = "devnet"}
-sui_keys = { git = "https://github.com/mystenlabs/sui", package = "sui-keys", branch = "devnet"}
-move_binary_format = { git = "https://github.com/mystenlabs/sui", package = "move-binary-format", branch = "devnet"}
-move_core_types = { git = "https://github.com/mystenlabs/sui", package = "move-core-types", branch = "devnet"}
-move_model= { git = "https://github.com/mystenlabs/sui", package = "move-model-2", branch = "devnet"}
-sui-types = { git = "https://github.com/mystenlabs/sui", branch = "devnet" }
-move-disassembler = { git = "https://github.com/mystenlabs/sui", branch = "devnet" }
-move-ir-types = { git = "https://github.com/mystenlabs/sui", branch = "devnet" }
-move-bytecode-source-map = { git = "https://github.com/mystenlabs/sui", branch = "devnet" }
-move-bytecode-utils = { git = "https://github.com/mystenlabs/sui", branch = "devnet" }
+tokio = { version = "1.44.2", features = ["full"] }
+sui-sdk = { git = "https://github.com/aankor/sui.git", branch = "safe-disasm"}
+sui-config = { git = "https://github.com/aankor/sui.git", branch = "safe-disasm"}
+sui-keys = { git = "https://github.com/aankor/sui.git", branch = "safe-disasm"}
+move-binary-format = { git = "https://github.com/aankor/sui.git", branch = "safe-disasm"}
+move-core-types = { git = "https://github.com/aankor/sui.git", branch = "safe-disasm"}
+move_model= { git = "https://github.com/aankor/sui.git", package = "move-model-2", branch = "safe-disasm"}
+sui-types = { git = "https://github.com/aankor/sui.git", branch = "safe-disasm" }
+move-disassembler = { git = "https://github.com/aankor/sui.git", branch = "safe-disasm" }
+move-ir-types = { git = "https://github.com/aankor/sui.git", branch = "safe-disasm" }
+move-bytecode-source-map = { git = "https://github.com/aankor/sui.git", branch = "safe-disasm" }
+move-bytecode-utils = { git = "https://github.com/aankor/sui.git", branch = "safe-disasm" }
 clap.workspace = true
 uuid = { version = "1.13.1", features = ["v4"] }
 tempfile = "3.16.0"

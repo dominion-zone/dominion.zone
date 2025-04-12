@@ -7,7 +7,7 @@ edition = "2024"
 anyhow.workspace = true
 clap.workspace = true
 dominion-protector = { version = "0.1.0", path = "../dominion-protector" }
-sui-core = { git = "https://github.com/mystenlabs/sui", branch = "devnet" }
-sui-snapshot = { git = "https://github.com/mystenlabs/sui", branch = "devnet" }
-sui-types = { git = "https://github.com/mystenlabs/sui", branch = "devnet" }
-tokio = { version = "1.44.1", features = ["full"] }
+sui-core = { git = "https://github.com/aankor/sui.git", branch = "safe-disasm" }
+sui-snapshot = { git = "https://github.com/aankor/sui.git", branch = "safe-disasm" }
+sui-types = { git = "https://github.com/aankor/sui.git", branch = "safe-disasm" }
+tokio = { version = "1.44.2", features = ["full"] }

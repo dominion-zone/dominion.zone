@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT\n                object_id\n            FROM objects\n            LEFT JOIN module_sources ON\n                objects.object_id = module_sources.package_id AND\n                module_sources.network = objects.network AND\n                module_sources.kind = $1\n            WHERE\n                objects.object_type = 'package' AND\n                objects.network = $2 AND\n                module_sources.package_id IS NULL",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "object_id",
+        "type_info": "Bpchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "b96b71f23aa39e4760c82c23a65cde232a6fe4b210e8f6902ef695143d0daf65"
+}

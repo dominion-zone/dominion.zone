@@ -1,5 +1,6 @@
 use std::{
     collections::BTreeMap,
+    fmt::Display,
     fs::File,
     io::Write,
     str::{from_utf8, FromStr},
@@ -9,7 +10,6 @@ use anyhow::{bail, Context, Result};
 use clap::Args;
 use move_binary_format::CompiledModule;
 use move_bytecode_utils::Modules;
-use move_core_types::language_storage::ModuleId;
 use sqlx::{query, Acquire, Postgres};
 use sui_sdk::{
     rpc_types::{SuiRawData, SuiRawMovePackage},
@@ -21,101 +21,133 @@ use tokio::{fs, process::Command};
 use crate::{
     commands::download::get_or_download_object,
     db::{sources::ModuleSource, Db},
-    decompiler::decompile_module_to_smt,
+    decompiler::{
+        decompile_module_to_smt, decompile_module_with_disasm,
+        revela::decompile_module_with_revela_cli,
+    },
     sui_client::SuiClientWithNetwork,
 };
 
+#[derive(clap::ValueEnum, Clone, Debug)]
+pub enum Kind {
+    Revela,
+    Disassembled,
+}
+
+impl Display for Kind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Kind::Revela => write!(f, "revela"),
+            Kind::Disassembled => write!(f, "disassembled"),
+        }
+    }
+}
+
 #[derive(Args)]
 pub struct DecompileCommand {
-    id: String,
+    pub id: Option<String>,
+    #[arg(long, default_value = "disassembled")]
+    pub kind: Kind,
 }
 
 impl DecompileCommand {
-    pub async fn run(self) -> Result<()> {
-        let client = SuiClientWithNetwork::with_default_network().await?;
-        let mut db = Db::new().await?;
-        let object_id = ObjectID::from_str(&self.id)?;
+    pub async fn decompile_package<'a, A>(
+        &self,
+        db: A,
+        network: &str,
+        package: &SuiRawMovePackage,
+    ) -> Result<()>
+    // Result<BTreeMap<Identifier, ModuleSource>>
+    where
+        A: Acquire<'a, Database = Postgres>,
+    {
+        let mut db = db.acquire().await?;
+        match self.kind {
+            Kind::Revela => {
+                for (module_name, module_bytecode) in package.module_map.iter() {
+                    let _ = decompile_module_with_revela_cli(
+                        &mut *db,
+                        network,
+                        package.id,
+                        &module_name,
+                        module_bytecode,
+                    )
+                    .await?;
+                }
+            }
+            Kind::Disassembled => {
+                let compiled = package
+                    .module_map
+                    .values()
+                    .map(|m| Ok(CompiledModule::deserialize_with_defaults(m)?))
+                    .collect::<Result<Vec<_>>>()?;
+                let all_modules = Modules::new(compiled.iter());
+                for module in all_modules.compute_topological_order()? {
+                    let _ =
+                        decompile_module_with_disasm(&mut *db, network, package.id, module).await?;
+                }
+            }
+        }
+        Ok(())
+    }
+
+    pub async fn process_package(
+        &self,
+        client: &SuiClientWithNetwork,
+        db: &Db,
+        object_id: &ObjectID,
+    ) -> Result<()> {
         println!("Decompiling package with ID: {}", object_id);
-        let package = get_or_download_object(object_id, &client, &mut db).await?;
+        let package = get_or_download_object(object_id, &client, db).await?;
         if let SuiRawData::Package(package) = package.bcs.unwrap() {
             let mut tx = db.pool.begin().await?;
-            let _ = decompile_package(&mut *tx, &client.network, &package).await?;
+            let _ = self
+                .decompile_package(&mut *tx, &client.network, &package)
+                .await?;
             tx.commit().await?;
         } else {
             bail!("Object is not a package");
         }
         Ok(())
     }
-}
 
-pub async fn decompile_module_with_revela_cli<'a, A>(
-    db: A,
-    network: &str,
-    package_id: ObjectID,
-    module_name: &str,
-    module_bytecode: &[u8],
-) -> Result<ModuleSource>
-where
-    A: Acquire<'a, Database = Postgres>,
-{
-    let mut db = db.acquire().await?;
-    // let binary = CompiledModule::deserialize_with_defaults(&module_bytecode)?;
-    let dir = tempdir()?;
-    let file_path = dir.path().join(format!("{}.mv", module_name));
-    let mut file = File::create(&file_path)?;
-    file.write_all(&module_bytecode)?;
-    let source = Command::new("revela")
-        .arg("-b")
-        .arg(&file_path)
-        .output()
+    pub async fn process_all_packages(&self, client: &SuiClientWithNetwork, db: &Db) -> Result<()> {
+        let ids = query!(
+            "SELECT
+                object_id
+            FROM objects
+            LEFT JOIN module_sources ON
+                objects.object_id = module_sources.package_id AND
+                module_sources.network = objects.network AND
+                module_sources.kind = $1
+            WHERE
+                objects.object_type = 'package' AND
+                objects.network = $2 AND
+                module_sources.package_id IS NULL",
+            self.kind.to_string(),
+            &client.network,
+        )
+        .fetch_all(&db.pool)
         .await?;
-    fs::remove_file(file_path).await?;
-
-    if source.status.success() {
-        let sources = ModuleSource {
-            package_id: package_id.to_string(),
-            module_name: module_name.to_string(),
-            network: network.to_string(),
-            source: from_utf8(&source.stdout)?.to_string(),
-            kind: "revela".to_string(),
-        };
-        sources.save(&mut *db).await?;
-        Ok(sources)
-    } else {
-        bail!(
-            "Failed to decompile module {}: {}",
-            module_name,
-            from_utf8(&source.stderr)?
-        );
+        for id in ids {
+            self.process_package(&client, db, &ObjectID::from_str(&id.object_id)?)
+                .await?;
+        }
+        Ok(())
     }
-}
 
-pub async fn decompile_package<'a, A>(
-    db: A,
-    network: &str,
-    package: &SuiRawMovePackage,
-) -> Result<()>
-// Result<BTreeMap<Identifier, ModuleSource>>
-where
-    A: Acquire<'a, Database = Postgres>,
-{
-    // let mut modules = BTreeMap::<Identifier, ModuleSource>::new();
-    let compiled = package
-        .module_map
-        .values()
-        .map(|m| Ok(CompiledModule::deserialize_with_defaults(m)?))
-        .collect::<Result<Vec<_>>>()?;
-    let mut db = db.acquire().await?;
-    let all_modules = Modules::new(compiled.iter());
-    for module in all_modules.compute_topological_order()? {
-        /*
-        let name_id = Identifier::from_str(&module_name)?;
-        modules.insert(
-            name_id,*/
-        decompile_module_to_smt(&mut *db, network, package.id, module).await?; /*,
-                                                                               );*/
+    pub async fn run(self) -> Result<()> {
+        let client = SuiClientWithNetwork::with_default_network().await?;
+        let mut db = Db::new().await?;
+        if let Some(id) = &self.id {
+            self.process_package(&client, &mut db, &ObjectID::from_str(&id)?)
+                .await?;
+        } else {
+            self.process_all_packages(&client, &mut db).await?;
+        }
+
+        Ok(())
     }
-    Ok(())
 }
 
 /*

@@ -18,7 +18,7 @@ impl ExperimentCommand {
         let client = SuiClientWithNetwork::with_default_network().await?;
         let db = Db::new().await?;
         let object_id = ObjectID::from_str(&self.id)?;
-        let package = get_or_download_object(object_id, &client, &db).await?;
+        let package = get_or_download_object(&object_id, &client, &db).await?;
         if let Some(SuiRawData::Package(package)) = package.bcs {
         } else {
             bail!("Expected package, got {:?}", package);

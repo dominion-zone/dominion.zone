@@ -45,7 +45,7 @@ impl DownloadCommand {
                 // let worker = Uuid::new_v4();
                 let object_id = ObjectID::from_str(&id)?;
                 println!("Downloading object with ID: {}", &object_id);
-                download_object(object_id, &client, &mut db).await?;
+                download_object(&object_id, &client, &mut db).await?;
                 Ok(())
             }
             DownloadType::Transaction { digest } => {
@@ -56,7 +56,7 @@ impl DownloadCommand {
 }
 
 pub async fn download_object(
-    object_id: ObjectID,
+    object_id: &ObjectID,
     client: &SuiClientWithNetwork,
     db: &Db,
 ) -> Result<SuiObjectData> {
@@ -64,7 +64,7 @@ pub async fn download_object(
         .client
         .read_api()
         .get_object_with_options(
-            object_id,
+            object_id.clone(),
             SuiObjectDataOptions {
                 show_type: true,
                 show_owner: true,
@@ -113,7 +113,7 @@ pub async fn download_object(
 }
 
 pub async fn get_or_download_object(
-    object_id: ObjectID,
+    object_id: &ObjectID,
     client: &SuiClientWithNetwork,
     db: &Db,
 ) -> Result<SuiObjectData> {
@@ -126,15 +126,15 @@ pub async fn get_or_download_object(
 }
 
 pub async fn get_or_download_model(
-    package_id: ObjectID,
+    package_id: &ObjectID,
     client: &SuiClientWithNetwork,
     db: &Db,
 ) -> Result<Model> {
     let mut modules = Vec::<CompiledModule>::new();
-    let mut unresolved_dependenices = vec![package_id];
+    let mut unresolved_dependenices = vec![package_id.clone()];
     while !unresolved_dependenices.is_empty() {
         let dependency_id = unresolved_dependenices.pop().unwrap();
-        let dependency = get_or_download_object(dependency_id, client, db).await?;
+        let dependency = get_or_download_object(&dependency_id, client, db).await?;
         if let SuiRawData::Package(dependency) = dependency.bcs.unwrap() {
             for bytecode in dependency.module_map.values() {
                 let compiled = CompiledModule::deserialize_with_defaults(&bytecode)?;
